@@ -33,9 +33,11 @@
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
       min-height: 100vh;
       overflow-x: hidden;
-      padding-bottom: 70px;
+      /* space for bottom nav + ticker + safe area */
+      padding-bottom: calc(56px + 38px + env(safe-area-inset-bottom));
     }
 
     /* SNOWFLAKES */
@@ -62,6 +64,7 @@
       padding: 0 var(--gap) 16px;
       position: relative;
       z-index: 1;
+      -webkit-overflow-scrolling: touch;
     }
 
     .sec-title {
@@ -77,31 +80,32 @@
     header {
       background: linear-gradient(160deg, #0F172A 0%, #1E293B 100%);
       border-bottom: 1px solid var(--border);
-      padding: 28px var(--gap) 16px;
+      padding: 14px var(--gap) 10px;
+      padding-top: calc(14px + env(safe-area-inset-top));
       text-align: center;
       position: relative;
       z-index: 1;
     }
 
     header h1 {
-      font-size: clamp(1.7rem, 7vw, 2.6rem);
+      font-size: clamp(1.3rem, 6vw, 2rem);
       font-weight: 900;
       letter-spacing: -0.03em;
       background: linear-gradient(135deg, #7DD3FC 0%, #C4B5FD 50%, #6EE7B7 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 6px;
+      margin-bottom: 3px;
     }
 
     header .sub {
       color: var(--muted);
-      font-size: 0.88rem;
+      font-size: 0.82rem;
     }
 
     header .updated {
-      margin-top: 6px;
-      font-size: 0.72rem;
+      margin-top: 4px;
+      font-size: 0.7rem;
       color: var(--muted);
     }
 
@@ -200,22 +204,54 @@
     }
     .cbadge-new { animation: popIn 0.35s ease; }
 
-    /* TABS */
-    .tab-nav {
-      display: flex; gap: 6px; overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 4px; margin-bottom: 14px;
+    /* BOTTOM NAV */
+    .bottom-nav {
+      position: fixed;
+      bottom: calc(38px + env(safe-area-inset-bottom)); /* sit above ticker */
+      left: 0; right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 200;
+      -webkit-tap-highlight-color: transparent;
     }
-    .tab-nav::-webkit-scrollbar { display: none; }
 
     .tb {
-      flex-shrink: 0; background: var(--surface); border: 1px solid var(--border);
-      color: var(--muted); padding: 8px 14px; border-radius: 8px;
-      font-size: 0.82rem; font-weight: 700; cursor: pointer;
-      white-space: nowrap; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-height: 56px;
+      padding: 6px 2px;
+      border: none;
+      background: none;
+      color: var(--muted);
+      font-size: 0.6rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      line-height: 1.2;
     }
-    .tb:active { transform: scale(0.93); }
-    .tb.on { background: var(--accent); color: #0F172A; border-color: var(--accent); }
+    .tb:active { background: rgba(125,211,252,0.08); transform: scale(0.93); }
+    .tb.on { color: var(--accent); }
+    .tb .nav-icon { font-size: 1.4rem; line-height: 1; margin-bottom: 1px; }
+    .tb.on .nav-icon { filter: drop-shadow(0 0 4px rgba(125,211,252,0.6)); }
+
+    /* thin active indicator bar at top of nav item */
+    .tb.on::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 0 0 2px 2px;
+    }
+    .tb { position: relative; }
 
     .tab-panel { display: none; }
     .tab-panel.on { display: block; }
@@ -240,11 +276,11 @@
     .act-btns { display: flex; gap: 5px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; max-width: 140px; }
 
     .btn {
-      min-width: 44px; min-height: 44px; border: none; border-radius: 8px;
-      font-size: 0.82rem; font-weight: 800; cursor: pointer;
+      min-width: 48px; min-height: 48px; border: none; border-radius: 8px;
+      font-size: 0.88rem; font-weight: 800; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: transform 0.1s; -webkit-tap-highlight-color: transparent;
-      padding: 0 8px;
+      padding: 0 10px;
     }
     .btn:active { transform: scale(0.87); }
     .btn-p { background: var(--pc); color: #0F172A; }
@@ -287,7 +323,9 @@
 
     .dish-inp {
       width: 100%; background: var(--surface2); border: 1px solid var(--border);
-      color: var(--text); padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 9px;
+      color: var(--text); padding: 10px 12px; border-radius: 8px;
+      font-size: 16px; /* prevent iOS zoom on focus */
+      margin-bottom: 9px;
     }
     .dish-inp::placeholder { color: var(--muted); }
     .dish-inp:focus { outline: 1px solid var(--accent); }
@@ -370,10 +408,17 @@
 
     /* TICKER */
     #ticker {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #1E293B; border-top: 1px solid var(--border);
-      padding: 11px 16px; font-size: 0.78rem; color: var(--accent); z-index: 100;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #0F172A;
+      border-top: 1px solid var(--border);
+      padding: 8px 16px;
+      padding-bottom: calc(8px + env(safe-area-inset-bottom));
+      font-size: 0.72rem; color: var(--accent);
+      z-index: 150; /* below bottom-nav (200) */
       overflow: hidden; white-space: nowrap;
+      height: calc(38px + env(safe-area-inset-bottom));
+      display: flex; align-items: center;
     }
     #ticker-txt { display: inline-block; animation: scroll 22s linear infinite; }
     @keyframes scroll {
@@ -396,7 +441,7 @@
     /* FOOTER */
     #footer {
       max-width: 640px; margin: 0 auto;
-      padding: 8px var(--gap) 80px;
+      padding: 8px var(--gap) 16px;
       display: flex; flex-direction: column; gap: 10px;
       position: relative; z-index: 1;
     }
@@ -415,6 +460,14 @@
     @media (min-width: 560px) {
       #chars-row { display: grid; grid-template-columns: repeat(2, 1fr); overflow-x: visible; }
       .char-card { flex: none; }
+      /* On wider screens the bottom nav can sit lower since no home indicator */
+      .bottom-nav { max-width: 640px; left: 50%; right: auto; transform: translateX(-50%); width: 100%; }
+    }
+
+    /* On very narrow screens, tighten nav label font */
+    @media (max-width: 360px) {
+      .tb { font-size: 0.52rem; }
+      .tb .nav-icon { font-size: 1.2rem; }
     }
   </style>
 </head>
@@ -442,14 +495,7 @@
   <div id="chars-row"></div>
 
   <!-- ACTIVITIES -->
-  <div class="sec-title">🏆 Aktiviteter</div>
-  <div class="tab-nav" id="tab-nav">
-    <button class="tb on" data-tab="langd">⛷️ Längd</button>
-    <button class="tb" data-tab="ol">🍺 Öl</button>
-    <button class="tb" data-tab="utfor">🎿 Utför</button>
-    <button class="tb" data-tab="mat">🍳 Mat</button>
-    <button class="tb" data-tab="bonus">⭐ Bonus</button>
-  </div>
+  <div class="sec-title" id="activities-title">🏆 Aktiviteter</div>
   <div id="tab-langd" class="tab-panel on"></div>
   <div id="tab-ol"    class="tab-panel"></div>
   <div id="tab-utfor" class="tab-panel"></div>
@@ -475,6 +521,15 @@
   <button class="btn-act btn-share" id="share-btn">📤 Dela ställning</button>
   <button class="btn-act btn-reset" id="reset-btn">🗑️ Nollställ allt</button>
 </div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="tab-nav" aria-label="Aktiviteter">
+  <button class="tb on" data-tab="langd"><span class="nav-icon">⛷️</span>Längd</button>
+  <button class="tb" data-tab="ol"><span class="nav-icon">🍺</span>Öl</button>
+  <button class="tb" data-tab="utfor"><span class="nav-icon">🎿</span>Utför</button>
+  <button class="tb" data-tab="mat"><span class="nav-icon">🍳</span>Mat</button>
+  <button class="tb" data-tab="bonus"><span class="nav-icon">⭐</span>Bonus</button>
+</nav>
 
 <div id="ticker"><span id="ticker-txt">⛷️ Välkommen till Messlingen 2026! Ladda skidorna. Och ölkylen.</span></div>
 <div id="toasts"></div>
@@ -534,8 +589,8 @@ function mergeState(d) {
 }
 
 let S = blankState();
-let _st = null; // save debounce timer
-let _lastSavedTs = null;
+let _st = null;        // save debounce timer
+let _saving = false;   // true while a save is in-flight → block polling overwrite
 let DP = null, DR = 0; // mat tab transient state
 
 // =====================================================================
@@ -571,24 +626,33 @@ function sbHeaders() {
 
 function save() {
   S.ts = new Date().toISOString();
-  _lastSavedTs = S.ts;
-  localStorage.setItem('m2026', JSON.stringify(S)); // lokal backup
+  localStorage.setItem('m2026', JSON.stringify(S)); // lokal backup alltid
 
   if (!READY) return;
 
+  _saving = true;
   clearTimeout(_st);
   _st = setTimeout(function() {
     setSyncStatus('🔄 Sparar...', 'loading');
-    fetch(SB_URL + '/rest/v1/data?id=eq.messlingen', {
-      method: 'PATCH',
-      headers: sbHeaders(),
-      body: JSON.stringify({ value: S })
+    // UPSERT — fungerar både vid insert och update
+    fetch(SB_URL + '/rest/v1/data', {
+      method: 'POST',
+      headers: Object.assign({}, sbHeaders(), { 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+      body: JSON.stringify({ id: 'messlingen', value: S })
     })
     .then(function(r) {
-      if (r.ok) { setSyncStatus('✅ Synkad — alla ser uppdateringen', 'ok'); }
-      else { r.text().then(function(t){ console.error('SB save:', t); }); }
+      _saving = false;
+      if (r.ok) {
+        setSyncStatus('✅ Synkad', 'ok');
+      } else {
+        r.text().then(function(t) { console.error('SB save error:', t); });
+        setSyncStatus('⚠️ Sparfel', 'warn');
+      }
     })
-    .catch(function(e) { setSyncStatus('⚠️ Offline — sparar lokalt', 'warn'); });
+    .catch(function() {
+      _saving = false;
+      setSyncStatus('⚠️ Offline — sparar lokalt', 'warn');
+    });
   }, 400);
 }
 
@@ -1010,6 +1074,9 @@ document.getElementById('tab-nav').addEventListener('click', function(e) {
   document.querySelectorAll('.tb').forEach(function(b){ b.classList.toggle('on', b.dataset.tab===tab); });
   document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.toggle('on', p.id==='tab-'+tab); });
   if (tab==='mat') document.getElementById('tab-mat').innerHTML = tMat();
+  // scroll to activity section when switching tabs
+  var actTitle = document.getElementById('activities-title');
+  if (actTitle) actTitle.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
 // =====================================================================
@@ -1125,6 +1192,15 @@ document.getElementById('share-btn').addEventListener('click', exportScores);
 document.getElementById('reset-btn').addEventListener('click', handleReset);
 
 // =====================================================================
+// WINDOW SCOPE — krävs för inline onclick i dynamiskt renderad HTML
+// Utan detta funkar inte knapparna på vissa mobilbrowsers (Safari/WebView)
+// =====================================================================
+window.upd         = upd;
+window.selDP       = selDP;
+window.selDR       = selDR;
+window.submitDish  = submitDish;
+
+// =====================================================================
 // SNOWFLAKES
 // =====================================================================
 
@@ -1180,14 +1256,15 @@ if (READY) {
       renderAll();
     });
 
-  // Polling var 5:e sekund
+  // Polling var 5:e sekund — hoppar över om en save pågår
   setInterval(function() {
+    if (_saving) return; // vänta — skippa polling tills sparandet är klart
     fetchRemote()
       .then(function(data) {
+        if (_saving) return; // dubbelkoll
         if (data.ts && data.ts !== S.ts) {
           S = data;
-          _lastSavedTs = S.ts;
-          setSyncStatus('🔄 Ny data! ' + fmt(S.ts), 'ok');
+          setSyncStatus('🔄 Uppdaterad!', 'ok');
           renderAll();
         } else {
           setSyncStatus('✅ Live', 'ok');
