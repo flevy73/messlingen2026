@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>Messlingen 2026 ⛷️</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0F172A;
+      --surface: #1E293B;
+      --surface2: #334155;
+      --border: #334155;
+      --text: #F1F5F9;
+      --muted: #94A3B8;
+      --accent: #7DD3FC;
+      --mange: #F59E0B;
+      --flevy: #A78BFA;
+      --andy: #34D399;
+      --habbe: #60A5FA;
+      --gold: #F59E0B;
+      --silver: #94A3B8;
+      --bronze: #cd8c4c;
+      --r: 12px;
+      --gap: 14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 70px;
+    }
+
+    /* SNOWFLAKES */
+    .flake {
+      position: fixed;
+      top: -20px;
+      pointer-events: none;
+      z-index: 0;
+      user-select: none;
+      animation: snowfall linear infinite;
+      color: rgba(255,255,255,0.55);
+    }
+    @keyframes snowfall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 0.6; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* LAYOUT */
+    .wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 var(--gap) 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sec-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 24px 0 10px;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(160deg, #0F172A 0%, #1E293B 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px var(--gap) 16px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    header h1 {
+      font-size: clamp(1.7rem, 7vw, 2.6rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #7DD3FC 0%, #C4B5FD 50%, #6EE7B7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+
+    header .sub {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    header .updated {
+      margin-top: 6px;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    /* SYNC BAR */
+    .sync-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    .sync-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      display: inline-block;
+      flex-shrink: 0;
+      box-shadow: 0 0 5px #22c55e88;
+    }
+    .sync-dot.off { background: #ef4444; box-shadow: 0 0 5px #ef444488; }
+    .sync-dot.warn { background: #f59e0b; box-shadow: 0 0 5px #f59e0b88; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .sync-dot.loading { animation: pulse 1s ease infinite; }
+
+    /* FIREBASE SETUP BANNER */
+    #setup-banner {
+      background: linear-gradient(135deg, #1E293B, #0F2744);
+      border: 1px solid #3b82f6;
+      border-radius: var(--r);
+      padding: 14px;
+      margin-bottom: 14px;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+    #setup-banner h3 { color: var(--accent); font-size: 0.9rem; margin-bottom: 8px; }
+    #setup-banner code {
+      background: var(--surface2); padding: 2px 6px; border-radius: 4px;
+      font-size: 0.75rem; color: #6EE7B7;
+    }
+    #setup-banner ol { margin-left: 16px; }
+    #setup-banner li { margin-bottom: 4px; }
+
+    /* CHARACTER CARDS */
+    #chars-row {
+      display: flex;
+      gap: var(--gap);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      padding: 4px 2px 10px;
+    }
+    #chars-row::-webkit-scrollbar { display: none; }
+
+    .char-card {
+      flex: 0 0 190px;
+      scroll-snap-align: start;
+      background: var(--surface);
+      border-radius: var(--r);
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--pc);
+      transition: transform 0.1s;
+    }
+    .char-card:active { transform: scale(0.97); }
+
+    .char-emo { font-size: 2.4rem; display: block; margin-bottom: 6px; }
+    .char-name { font-size: 1rem; font-weight: 800; color: var(--pc); margin-bottom: 3px; }
+    .char-badge {
+      font-size: 0.68rem; color: var(--muted);
+      background: var(--surface2); padding: 2px 7px;
+      border-radius: 99px; display: inline-block; margin-bottom: 8px;
+    }
+
+    .mini-bars { display: flex; flex-direction: column; gap: 4px; margin-bottom: 9px; }
+    .mini-bar-row { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; }
+    .mini-bar-lbl { color: var(--muted); width: 44px; flex-shrink: 0; }
+    .mini-bar-bg { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+    .mini-bar-fill { height: 100%; background: var(--pc); border-radius: 2px; transition: width 0.4s ease; }
+    .mini-bar-val { color: var(--text); font-weight: 600; width: 32px; text-align: right; font-variant-numeric: tabular-nums; }
+
+    .char-score { font-size: 0.72rem; color: var(--muted); margin-bottom: 6px; }
+    .char-score strong { color: var(--pc); }
+
+    .char-quip {
+      font-size: 0.72rem; color: var(--muted); font-style: italic; line-height: 1.4;
+      border-top: 1px solid var(--border); padding-top: 7px;
+    }
+
+    .char-badges-earned { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 7px; }
+    .cbadge { font-size: 0.95rem; background: var(--surface2); padding: 2px 4px; border-radius: 6px; }
+
+    @keyframes popIn {
+      0% { transform: scale(0); } 70% { transform: scale(1.25); } 100% { transform: scale(1); }
+    }
+    .cbadge-new { animation: popIn 0.35s ease; }
+
+    /* TABS */
+    .tab-nav {
+      display: flex; gap: 6px; overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px; margin-bottom: 14px;
+    }
+    .tab-nav::-webkit-scrollbar { display: none; }
+
+    .tb {
+      flex-shrink: 0; background: var(--surface); border: 1px solid var(--border);
+      color: var(--muted); padding: 8px 14px; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      white-space: nowrap; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+    }
+    .tb:active { transform: scale(0.93); }
+    .tb.on { background: var(--accent); color: #0F172A; border-color: var(--accent); }
+
+    .tab-panel { display: none; }
+    .tab-panel.on { display: block; }
+
+    /* ACTIVITY ROWS */
+    .act-row {
+      background: var(--surface); border-radius: var(--r);
+      border: 1px solid var(--border); border-left: 3px solid var(--pc);
+      padding: 11px 13px; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .act-emo { font-size: 1.5rem; flex-shrink: 0; }
+    .act-info { flex: 1; min-width: 0; }
+    .act-name { font-size: 0.78rem; font-weight: 700; color: var(--pc); }
+    .act-score {
+      font-size: 1.9rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1;
+    }
+    .act-unit { font-size: 0.65rem; color: var(--muted); margin-left: 3px; }
+    .act-rank { font-size: 1.1rem; flex-shrink: 0; }
+
+    .act-btns { display: flex; gap: 5px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; max-width: 140px; }
+
+    .btn {
+      min-width: 44px; min-height: 44px; border: none; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.1s; -webkit-tap-highlight-color: transparent;
+      padding: 0 8px;
+    }
+    .btn:active { transform: scale(0.87); }
+    .btn-p { background: var(--pc); color: #0F172A; }
+    .btn-m { background: var(--surface2); color: var(--muted); font-size: 0.75rem; }
+
+    /* NOTE BAR */
+    .note {
+      text-align: center; font-size: 0.78rem; color: var(--muted);
+      font-style: italic; margin-top: 8px; padding: 9px 12px;
+      background: var(--surface); border-radius: 8px; border: 1px solid var(--border);
+      line-height: 1.4;
+    }
+
+    /* BONUS SECTION HEADER */
+    .bonus-hdr {
+      font-size: 0.82rem; font-weight: 700; color: var(--muted);
+      margin: 18px 0 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .bonus-hdr:first-child { margin-top: 0; }
+
+    /* MAT FORM */
+    .mat-form {
+      background: var(--surface); border-radius: var(--r);
+      border: 1px solid var(--border); padding: 14px; margin-bottom: 14px;
+    }
+    .mat-form h3 { font-size: 0.85rem; color: var(--muted); font-weight: 600; margin-bottom: 11px; }
+
+    .player-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 11px;
+    }
+    .ppick {
+      background: var(--surface2); border: 2px solid transparent;
+      color: var(--text); padding: 8px 3px; border-radius: 8px;
+      font-size: 0.75rem; cursor: pointer; text-align: center; min-height: 48px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+    }
+    .ppick.on { border-color: var(--pc); background: var(--pc); color: #0F172A; font-weight: 700; }
+    .ppick .pe { font-size: 1.3rem; }
+
+    .dish-inp {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 9px;
+    }
+    .dish-inp::placeholder { color: var(--muted); }
+    .dish-inp:focus { outline: 1px solid var(--accent); }
+
+    .star-row { display: flex; gap: 4px; margin-bottom: 11px; }
+    .star {
+      font-size: 1.6rem; background: none; border: none; cursor: pointer; padding: 3px;
+      min-height: 44px; transition: transform 0.1s; filter: grayscale(1) opacity(0.35);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .star.on { filter: none; transform: scale(1.12); }
+    .star:active { transform: scale(0.9); }
+
+    .btn-submit {
+      width: 100%; background: var(--accent); color: #0F172A;
+      border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem;
+      font-weight: 800; cursor: pointer; transition: opacity 0.15s; min-height: 48px;
+    }
+    .btn-submit:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* DISH HISTORY */
+    .dish-list { margin-top: 10px; }
+    .dish-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 0;
+      border-bottom: 1px solid var(--border); font-size: 0.8rem;
+    }
+    .dish-item:last-child { border-bottom: none; }
+
+    /* MAT SCORES */
+    .mat-scores { margin-bottom: 16px; }
+    .mat-score-row {
+      display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+      background: var(--surface); border-radius: 8px; margin-bottom: 6px;
+      border: 1px solid var(--border); border-left: 3px solid var(--pc);
+    }
+    .mat-score-row .emo { font-size: 1.3rem; }
+    .mat-score-row .name { font-size: 0.82rem; font-weight: 700; color: var(--pc); flex: 1; }
+    .mat-score-row .pts { font-size: 1.4rem; font-weight: 900; }
+    .mat-score-row .rank { font-size: 1rem; }
+
+    /* LEADERBOARD */
+    .lb-row {
+      display: flex; align-items: center; gap: 11px; padding: 13px 15px;
+      background: var(--surface); border-radius: var(--r);
+      border: 1px solid var(--border); border-left: 3px solid var(--pc); margin-bottom: 8px;
+    }
+    .lb-rank { font-size: 1.4rem; width: 34px; flex-shrink: 0; }
+    .lb-emo { font-size: 1.4rem; flex-shrink: 0; }
+    .lb-info { flex: 1; }
+    .lb-name { font-size: 0.95rem; font-weight: 800; color: var(--pc); }
+    .lb-detail { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .lb-pts { font-size: 1.6rem; font-weight: 900; }
+    .lb-pts-unit { font-size: 0.65rem; color: var(--muted); }
+
+    /* ACHIEVEMENTS */
+    .ach-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    @media(min-width: 480px) { .ach-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .ach-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 12px; opacity: 0.3; transition: opacity 0.4s;
+    }
+    .ach-card.on { opacity: 1; border-color: var(--accent); }
+    .ach-emo { font-size: 1.5rem; margin-bottom: 4px; display: block; }
+    .ach-name { font-size: 0.77rem; font-weight: 800; margin-bottom: 2px; }
+    .ach-desc { font-size: 0.67rem; color: var(--muted); line-height: 1.3; }
+    .ach-earners { font-size: 0.67rem; color: var(--accent); margin-top: 4px; font-weight: 600; }
+
+    /* LOG */
+    .log-item {
+      display: flex; gap: 9px; align-items: flex-start; padding: 9px 11px;
+      background: var(--surface); border-radius: 8px; border: 1px solid var(--border);
+      font-size: 0.78rem; margin-bottom: 6px;
+    }
+    .log-emo { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+    .log-body { flex: 1; }
+    .log-txt { color: var(--text); line-height: 1.3; }
+    .log-quip { color: var(--muted); font-style: italic; margin-top: 2px; }
+    .log-time { font-size: 0.65rem; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+
+    /* TICKER */
+    #ticker {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #1E293B; border-top: 1px solid var(--border);
+      padding: 11px 16px; font-size: 0.78rem; color: var(--accent); z-index: 100;
+      overflow: hidden; white-space: nowrap;
+    }
+    #ticker-txt { display: inline-block; animation: scroll 22s linear infinite; }
+    @keyframes scroll {
+      0%   { transform: translateX(100vw); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* TOASTS */
+    #toasts { position: fixed; top: 14px; right: 14px; z-index: 999; display: flex; flex-direction: column; gap: 7px; pointer-events: none; }
+    .toast {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 14px; font-size: 0.82rem; max-width: 260px;
+      animation: tIn 0.3s ease, tOut 0.3s ease 2.8s forwards;
+      pointer-events: auto; line-height: 1.3;
+    }
+    .toast.badge { border-color: var(--gold); }
+    @keyframes tIn  { from { opacity:0; transform:translateX(110%); } to { opacity:1; transform:translateX(0); } }
+    @keyframes tOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(110%); } }
+
+    /* FOOTER */
+    #footer {
+      max-width: 640px; margin: 0 auto;
+      padding: 8px var(--gap) 80px;
+      display: flex; flex-direction: column; gap: 10px;
+      position: relative; z-index: 1;
+    }
+
+    .btn-act {
+      width: 100%; padding: 14px; border-radius: 10px; border: none;
+      font-size: 0.9rem; font-weight: 800; cursor: pointer; min-height: 50px;
+      transition: transform 0.1s; -webkit-tap-highlight-color: transparent;
+    }
+    .btn-act:active { transform: scale(0.98); }
+    .btn-share { background: var(--accent); color: #0F172A; }
+    .btn-reset { background: var(--surface); border: 1px solid #ef4444; color: #ef4444; }
+    .btn-reset.armed { background: #ef4444; color: white; }
+
+    /* RESPONSIVE */
+    @media (min-width: 560px) {
+      #chars-row { display: grid; grid-template-columns: repeat(2, 1fr); overflow-x: visible; }
+      .char-card { flex: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="snow" aria-hidden="true"></div>
+
+<header>
+  <h1>⛷️ Messlingen 2026 ⛷️</h1>
+  <div class="sub">Männens Vinterhelg · Härjedalen</div>
+  <div class="sync-bar">
+    <span class="sync-dot loading" id="sync-dot"></span>
+    <span id="sync-status">Ansluter...</span>
+  </div>
+  <div class="updated" id="updated">📍 Messlingen, Härjedalen</div>
+</header>
+
+<div class="wrap">
+
+  <!-- placeholder, används ej längre -->
+  <div id="setup-banner" style="display:none"></div>
+
+  <!-- CHARACTERS -->
+  <div class="sec-title">👥 Spelarna</div>
+  <div id="chars-row"></div>
+
+  <!-- ACTIVITIES -->
+  <div class="sec-title">🏆 Aktiviteter</div>
+  <div class="tab-nav" id="tab-nav">
+    <button class="tb on" data-tab="langd">⛷️ Längd</button>
+    <button class="tb" data-tab="ol">🍺 Öl</button>
+    <button class="tb" data-tab="utfor">🎿 Utför</button>
+    <button class="tb" data-tab="mat">🍳 Mat</button>
+    <button class="tb" data-tab="bonus">⭐ Bonus</button>
+  </div>
+  <div id="tab-langd" class="tab-panel on"></div>
+  <div id="tab-ol"    class="tab-panel"></div>
+  <div id="tab-utfor" class="tab-panel"></div>
+  <div id="tab-mat"   class="tab-panel"></div>
+  <div id="tab-bonus" class="tab-panel"></div>
+
+  <!-- LEADERBOARD -->
+  <div class="sec-title">🥇 Totalpoäng</div>
+  <div id="leaderboard"></div>
+
+  <!-- ACHIEVEMENTS -->
+  <div class="sec-title">🏅 Achievements</div>
+  <div id="achievements"></div>
+
+  <!-- LOG -->
+  <div class="sec-title">📜 Aktivitetslogg</div>
+  <div id="log"></div>
+
+</div>
+
+<!-- FOOTER -->
+<div id="footer">
+  <button class="btn-act btn-share" id="share-btn">📤 Dela ställning</button>
+  <button class="btn-act btn-reset" id="reset-btn">🗑️ Nollställ allt</button>
+</div>
+
+<div id="ticker"><span id="ticker-txt">⛷️ Välkommen till Messlingen 2026! Ladda skidorna. Och ölkylen.</span></div>
+<div id="toasts"></div>
+
+<script>
+// =====================================================================
+// 🗄️ SUPABASE CONFIG
+// Steg för att sätta upp (tar 2 min):
+//  1. Gå till https://supabase.com → "Start your project" → logga in med GitHub
+//  2. New Project → välj namn (t.ex. messlingen) → vänta ~1 min
+//  3. Gå till "SQL Editor" och kör denna query:
+//       create table data (id text primary key, value jsonb not null default '{}');
+//       insert into data values ('messlingen', '{}');
+//       alter table data disable row level security;
+//  4. Gå till Project Settings → API → kopiera "Project URL" och "anon public key" hit
+// =====================================================================
+const SB_URL    = 'https://zycbdxzqayhotmozixww.supabase.co';
+const SB_KEY    = 'sb_publishable__4Mms9qcIYVOMss3Uhi9lQ_TgY_1wtz';
+const READY     = SB_URL !== 'DIN_SUPABASE_URL';
+
+// =====================================================================
+// KONSTANTER & METADATA
+// =====================================================================
+
+const PM = {
+  mange: { name:'Mange', emo:'🤒😬', color:'#F59E0B', badge:'🏖️ Skåning',       tag:'Tungan i kläm sedan -76'        },
+  flevy: { name:'Flevy', emo:'🤖🎾', color:'#A78BFA', badge:'🤖 Claude-frälst', tag:'Frågar Claude om allt'            },
+  andy:  { name:'Andy',  emo:'🚴🤖', color:'#34D399', badge:'🚴 Dalmas Cycling', tag:'Cyklar mentalt, åker skidor'     },
+  habbe: { name:'Habbe', emo:'⚽🏒', color:'#60A5FA', badge:'🏠 Småland',        tag:'Kalmar FF & HV71 for ever'       }
+};
+const PIDS = ['mange','flevy','andy','habbe'];
+
+// =====================================================================
+// STATE
+// =====================================================================
+
+function blankPlayer() {
+  return { langd:0, ol:0, utfor:0, mat:0, bastu:0, kortspel:0, snoboll:0, klagan:0 };
+}
+function blankState() {
+  return { players:{ mange:blankPlayer(), flevy:blankPlayer(), andy:blankPlayer(), habbe:blankPlayer() },
+           achs:{}, dishes:[], log:[], ts:null };
+}
+
+function mergeState(d) {
+  const b = blankState();
+  if (d.players) {
+    for (const pid of PIDS) {
+      if (d.players[pid]) b.players[pid] = { ...blankPlayer(), ...d.players[pid] };
+    }
+  }
+  b.achs   = d.achs   || {};
+  b.dishes = Array.isArray(d.dishes) ? d.dishes : [];
+  b.log    = Array.isArray(d.log)    ? d.log    : [];
+  b.ts     = d.ts     || null;
+  return b;
+}
+
+let S = blankState();
+let _st = null; // save debounce timer
+let _lastSavedTs = null;
+let DP = null, DR = 0; // mat tab transient state
+
+// =====================================================================
+// SYNC STATUS
+// =====================================================================
+
+function setSyncStatus(msg, mode) {
+  // mode: 'ok' | 'loading' | 'warn' | 'off'
+  const el  = document.getElementById('sync-status');
+  const dot = document.getElementById('sync-dot');
+  if (el)  el.textContent = msg;
+  if (dot) {
+    dot.className = 'sync-dot';
+    if (mode === 'loading') dot.classList.add('loading');
+    else if (mode === 'warn') dot.classList.add('warn');
+    else if (mode === 'off')  dot.classList.add('off');
+    // 'ok' = green, no extra class
+  }
+}
+
+// =====================================================================
+// SAVE / LOAD
+// =====================================================================
+
+function sbHeaders() {
+  return {
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + SB_KEY,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=minimal'
+  };
+}
+
+function save() {
+  S.ts = new Date().toISOString();
+  _lastSavedTs = S.ts;
+  localStorage.setItem('m2026', JSON.stringify(S)); // lokal backup
+
+  if (!READY) return;
+
+  clearTimeout(_st);
+  _st = setTimeout(function() {
+    setSyncStatus('🔄 Sparar...', 'loading');
+    fetch(SB_URL + '/rest/v1/data?id=eq.messlingen', {
+      method: 'PATCH',
+      headers: sbHeaders(),
+      body: JSON.stringify({ value: S })
+    })
+    .then(function(r) {
+      if (r.ok) { setSyncStatus('✅ Synkad — alla ser uppdateringen', 'ok'); }
+      else { r.text().then(function(t){ console.error('SB save:', t); }); }
+    })
+    .catch(function(e) { setSyncStatus('⚠️ Offline — sparar lokalt', 'warn'); });
+  }, 400);
+}
+
+// =====================================================================
+// SCORING
+// =====================================================================
+
+function score(p) {
+  return p.langd*2 + p.ol*1 + p.utfor*3 + p.mat*4 + p.bastu*1 + p.kortspel*2 + p.snoboll*1;
+}
+
+function ranked() {
+  return [...PIDS].map(id=>({id, s:score(S.players[id])})).sort((a,b)=>b.s-a.s);
+}
+
+function rankFor(act) {
+  const sr = [...PIDS].sort((a,b)=>S.players[b][act]-S.players[a][act]);
+  const m={}; sr.forEach((p,i)=>m[p]=i); return m;
+}
+
+// =====================================================================
+// QUIPS
+// =====================================================================
+
+function quip(pid) {
+  const p = S.players[pid];
+  if (pid==='mange') {
+    if (p.ol>=10) return '"Tio öl! Mange pratar nu fullständigt obegriplig skånska."';
+    if (p.ol>=6)  return '"Sex öl! Ingen förstår vad han säger längre. Kanske bättre så."';
+    if (p.ol>=3)  return '"Tre öl! Skånska accenten tjocknar... eller är det svullnaden?"';
+    if (p.langd>=20) return '"20 km! Tungan har glömt att den gör ont."';
+    if (p.langd>=10) return '"10 km! Flat mark i Skåne hade varit lättare."';
+    if (p.langd>=1)  return '"Mange åker skidor! Tungan fladdrar i fjällvinden."';
+    if (p.klagan>=8) return '"Åtta klagomål. Det är rekord. Och det är bara förmiddagen."';
+    if (p.klagan>=3) return '"Tungan, knäna, ryggen — Mange hittar alltid något."';
+    return '"Ja, dä va gott det!" — Mange, om allt och inget.';
+  }
+  if (pid==='flevy') {
+    if (p.ol>=8) return '"Claude har officiellt spärrat Flevy som premiumanvändare."';
+    if (p.ol>=5) return '"Fem öl. Flevy frågade Claude om lämplig promillegräns. Claude svarade inte."';
+    if (p.ol>=2) return '"Flevy drack öl. Consultade Claude om kaloriskylden efteråt."';
+    if (p.langd>=15) return '"15 km! Claude förutspådde detta inom ±0.3 km. Naturligtvis."';
+    if (p.langd>=7)  return '"7 km! \'Claude gav träningsplanen. Den funkade.\' — Flevy"';
+    if (p.langd>=1)  return '"Flevy åker längd! Claude-optimerad teknik, förstås."';
+    if (p.utfor>=3)  return '"Padel saknas. Flevy improviserar med skidstavar."';
+    return '"Frågade Claude hur man förbereder sig för fjällhelg. 4 500 tokens senare..."';
+  }
+  if (pid==='andy') {
+    if (p.ol>=7) return '"Sju öl. Claude noterade det och sa \'rehydrera\'."';
+    if (p.ol>=4) return '"Andy har druckit 4 öl. Kalorikalkyl: skippas för helgen."';
+    if (p.ol>=1) return '"Andy dricker öl! \'Det är som sportdryck fast godare,\' sa han."';
+    if (p.langd>=20) return '"20 km! Exakt samma som torsdagens cykelrunda. Andy är nöjd."';
+    if (p.langd>=10) return '"10 km! \'Liknar cykling, fast kallare och mer smärtsamt.\'"';
+    if (p.utfor>=1)  return '"Andy åker utför! \'Vart är pedalerna?!\'"';
+    if (p.langd>=1)  return '"Andy åker längd. \'Det är typ som att cykla,\' sa han bestämt."';
+    return '"Funderar aktivt på att montera cykelhjul på skidorna."';
+  }
+  if (pid==='habbe') {
+    if (p.ol>=8) return '"Åtta öl. Hela Kalmar FF:s höst-säsong bearbetad."';
+    if (p.ol>=4) return '"Habbe dricker för att glömma att HV71 inte vann senast."';
+    if (p.ol>=1) return '"Habbe dricker öl och kollar Kalmar FF:s tabell. Dyster."';
+    if (p.langd>=15) return '"15 km! Imponerande för en smålänning som sparar på allt."';
+    if (p.langd>=7)  return '"7 km! Habbe åker lika bestämt som HV71 mot slutspel."';
+    if (p.utfor>=5)  return '"Fem åk utför! Fortfarande dålig på set-pieces dock."';
+    if (p.utfor>=1)  return '"Habbe åker utför! Lika seriöst som Kalmar FF:s titelchans."';
+    if (p.langd>=1)  return '"Habbe åker längd! Kollar HV71 på telefonen i liften."';
+    return '"Kollar matchresultat varje kvart. Ingen vinner. Habbe heller inte."';
+  }
+  return '...';
+}
+
+const LQ = {
+  mange:{ langd:['Tungan fladdrar i vinden!','"Dä va inte så farli!"','Skånskt kampmod!'],
+          ol:   ['"Ja, dä va gott det!"','Skånsk stämning!','"En till kan väl inte skada?"'],
+          utfor:['Mange rusar utför!','"Backen e inte lika flat som hemma!"','Skidorna sjunger!'],
+          mat:  ['"I Skåne gör vi det annorlunda."','Kulinarisk Skåning!','Mange lagar mat!'],
+          klagan:['Mange klagar igen...','En ny dag, ett nytt klagomål.','Tungan? Knäna? Ryggen?'] },
+  flevy:{ langd:['Claude-optimerad teknik!','AI förutspådde detta!','Paddelmuskler fungerar!'],
+          ol:   ['Claude ser och dömer.','Temporärt Claude-uppehåll!','"Jag frågade Claude..."'],
+          utfor:['Padel-instinkterna sparkar in!','"Claude sa att det var säkert."','Flevy rusar utför!'],
+          mat:  ['"Claude gav receptet."','AI-inspirerad matlagning!','Flevy lagar mat!'],
+          kortspel:['Flevy vinner! Claude förutspådde det.','Strategisk seger!'] },
+  andy: { langd:['"Det är typ som att cykla!"','Andy rullar på!','Cykelinstinkterna hjälper!'],
+          ol:   ['Kalorier kalkyleras...','Andy kopplar av!','"Bara en cykelkrog-öl."'],
+          utfor:['"Vart är pedalerna?!"','Andy conquers!','Utan cykel men med stil!'],
+          mat:  ['"Carb-loading, men för skidor."','Andy lagar mat!','Välnärd cyklist!'],
+          kortspel:['Andy vinner med cykelstrategi!','Datastyrd seger!'] },
+  habbe:{ langd:['HV71-kondis testas!','Kalmar-andan driver!','Habbe kämpar!'],
+          ol:   ['Kalmar FF-sorg medicineras.','HV71-minnen dränks.','"Skål för Kalmar!"'],
+          utfor:['Habbe rusar utför!','Som en Kalmar-forward!','Habbe i full fart!'],
+          mat:  ['Småländskt recept (billigast)!','"I Kalmar äter vi annorlunda."','Habbe lagar mat!'],
+          kortspel:['Habbe vinner! Kalmar FF-lycka!','HV71-strategi funkar!'] }
+};
+
+function lq(pid, act) {
+  const a = (LQ[pid]||{})[act]; if(!a||!a.length) return null;
+  return a[Math.floor(Math.random()*a.length)];
+}
+
+// =====================================================================
+// ACHIEVEMENTS
+// =====================================================================
+
+const ACHS = [
+  { id:'jarnman',       emo:'🦾',   name:'Järnman',             desc:'20+ km längdskidåkning',
+    check:(s,p)=>s.players[p].langd>=20 },
+  { id:'olkung',        emo:'👑🍺', name:'Ölkung',              desc:'Flest öl (min 5 st)',
+    check:(s,p)=>{ const v=s.players[p].ol; return v>=5&&PIDS.every(x=>x===p||s.players[x].ol<=v); } },
+  { id:'pistkung',      emo:'🎿',   name:'Pistkung',            desc:'10+ utförsåkningar',
+    check:(s,p)=>s.players[p].utfor>=10 },
+  { id:'kock',          emo:'👨‍🍳', name:'Kock av Härjedalen',  desc:'20+ matpoäng',
+    check:(s,p)=>s.players[p].mat>=20 },
+  { id:'bastu',         emo:'🧖',   name:'Bastubaddare',        desc:'3+ bastuvispningar',
+    check:(s,p)=>s.players[p].bastu>=3 },
+  { id:'alg',           emo:'🫎',   name:'Älgmöte',             desc:'Sällsynt fynd på spåret!',
+    check:(s,p)=>!!s.achs[p+'_alg'] },
+  { id:'claude_apostel',emo:'🤖✝️', name:'Claude-aposteln',     desc:'Flevy: 5+ öl',
+    check:(s,p)=>p==='flevy'&&s.players[p].ol>=5 },
+  { id:'skaansk',       emo:'☀️⛷️', name:'Skånsk Soldat',       desc:'Mange: åker längd!',
+    check:(s,p)=>p==='mange'&&s.players[p].langd>=1 },
+  { id:'kalmar',        emo:'😭⚽', name:'Kalmar FF-gråt',      desc:'Habbe hamnar sist',
+    check:(s,p)=>{ if(p!=='habbe')return false; const r=ranked(); return r[r.length-1].id==='habbe'&&r[r.length-1].s>0; } },
+  { id:'cykel',         emo:'🚴❌', name:'Cykel Saknas',        desc:'Andy: åker utför!',
+    check:(s,p)=>p==='andy'&&s.players[p].utfor>=1 },
+  { id:'klagan',        emo:'😤🏆', name:'Klagomästare',        desc:'10+ klagomål registrerade',
+    check:(s,p)=>s.players[p].klagan>=10 }
+];
+
+function checkAchs() {
+  const earned=[];
+  for(const pid of PIDS) for(const a of ACHS) {
+    const k=pid+'_'+a.id;
+    if(!S.achs[k]&&a.check(S,pid)){ S.achs[k]=true; earned.push({pid,a}); }
+  }
+  return earned;
+}
+
+// =====================================================================
+// SCORE UPDATE
+// =====================================================================
+
+function upd(pid, act, delta) {
+  const p = S.players[pid];
+  p[act] = Math.max(0, Math.round((p[act]+delta)*10)/10);
+
+  if(act==='langd'&&delta>0&&Math.random()<0.05) {
+    S.achs[pid+'_alg']=true;
+    toast('🫎 ÄLGMÖTE! '+PM[pid].name+' mötte en älg på spåret!','badge');
+  }
+
+  if(delta!==0) {
+    const enames={langd:'⛷️ längd',ol:'🍺 öl',utfor:'🎿 utförsåk',mat:'🍳 matpoäng',
+                  bastu:'🧖 bastu',kortspel:'🃏 kortspel',snoboll:'🤍 snöboll',klagan:'😤 klagomål'};
+    const txt = delta>0
+      ? `${PM[pid].name} loggade +${Math.abs(delta)} ${enames[act]}`
+      : `${PM[pid].name} korrigerade −${Math.abs(delta)} ${enames[act]}`;
+    S.log.unshift({ ts:new Date().toISOString(), pid, act, delta, txt, q:delta>0?lq(pid,act):null });
+    if(S.log.length>60) S.log=S.log.slice(0,60);
+  }
+
+  const newAchs=checkAchs();
+  for(const {pid:ap,a} of newAchs) toast(`${a.emo} ${PM[ap].name} unlocked: ${a.name}!`,'badge');
+
+  save(); renderAll();
+}
+
+function addDish(pid, name, rating) {
+  S.dishes.unshift({ pid, name, rating, ts:new Date().toISOString() });
+  upd(pid,'mat',rating);
+}
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function fmt(iso) {
+  if(!iso) return '';
+  return new Date(iso).toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
+}
+
+function rankEmo(i) { return ['🥇','🥈','🥉','🩲'][i]||'🩲'; }
+
+// =====================================================================
+// RENDER — CHARACTER CARDS
+// =====================================================================
+
+function renderChars() {
+  const r=ranked(); const rm={}; r.forEach((x,i)=>rm[x.id]=i);
+  const maxL=Math.max(1,...PIDS.map(p=>S.players[p].langd));
+  const maxO=Math.max(1,...PIDS.map(p=>S.players[p].ol));
+  const maxU=Math.max(1,...PIDS.map(p=>S.players[p].utfor));
+
+  document.getElementById('chars-row').innerHTML = PIDS.map(pid=>{
+    const m=PM[pid], p=S.players[pid], rank=rm[pid];
+    const badges=ACHS.filter(a=>S.achs[pid+'_'+a.id]).map(a=>`<span class="cbadge" title="${esc(a.name)}">${a.emo}</span>`).join('');
+    return `<div class="char-card" style="--pc:${m.color}">
+      <span class="char-emo">${m.emo}</span>
+      <div class="char-name">${rankEmo(rank)} ${m.name}</div>
+      <span class="char-badge">${m.badge}</span>
+      <div class="mini-bars">
+        <div class="mini-bar-row"><span class="mini-bar-lbl">⛷️ Längd</span><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:${Math.min(100,p.langd/maxL*100)}%"></div></div><span class="mini-bar-val">${p.langd}km</span></div>
+        <div class="mini-bar-row"><span class="mini-bar-lbl">🍺 Öl</span><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:${Math.min(100,p.ol/maxO*100)}%"></div></div><span class="mini-bar-val">${p.ol}st</span></div>
+        <div class="mini-bar-row"><span class="mini-bar-lbl">🎿 Utför</span><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:${Math.min(100,p.utfor/maxU*100)}%"></div></div><span class="mini-bar-val">${p.utfor}åk</span></div>
+      </div>
+      <div class="char-score">Totalpoäng: <strong>${score(p)}p</strong></div>
+      <div class="char-quip">${quip(pid)}</div>
+      ${badges?`<div class="char-badges-earned">${badges}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// =====================================================================
+// RENDER — ACTIVITY ROW
+// =====================================================================
+
+function actRow(pid, act, val, unit, btns) {
+  const m=PM[pid], rk=rankFor(act);
+  return `<div class="act-row" style="--pc:${m.color}">
+    <div class="act-emo">${m.emo}</div>
+    <div class="act-info">
+      <div class="act-name">${m.name}</div>
+      <div class="act-score">${val}<span class="act-unit">${unit}</span></div>
+    </div>
+    <div class="act-rank">${rankEmo(rk[pid])}</div>
+    <div class="act-btns">${btns}</div>
+  </div>`;
+}
+
+function b(lbl, pid, act, d, extra='') {
+  const pp=d>0?'btn-p':'btn-m';
+  return `<button class="btn ${pp} ${extra}" onclick="upd('${pid}','${act}',${d})" style="${d>0?'--pc:'+PM[pid].color:''}">${lbl}</button>`;
+}
+
+// =====================================================================
+// RENDER — TABS
+// =====================================================================
+
+function tLangd() {
+  const tot=PIDS.reduce((s,p)=>s+S.players[p].langd,0);
+  const note = tot===0 ? 'Ingen har åkt än. Ut i spåret!' : `Gruppen totalt: ${tot} km — ungefär ${(tot/5).toFixed(1)} varv runt Messlingen!`;
+  return PIDS.map(pid=>{
+    const p=S.players[pid];
+    return actRow(pid,'langd',p.langd,'km', b('+½',pid,'langd',0.5)+b('+1',pid,'langd',1)+b('+5',pid,'langd',5)+b('−½',pid,'langd',-0.5));
+  }).join('')+`<div class="note">${note}</div>`;
+}
+
+function tOl() {
+  const tot=PIDS.reduce((s,p)=>s+S.players[p].ol,0);
+  let note = tot===0 ? 'Ingen öl ännu. Det löser sig snart.' : `Gruppen: ${tot} öl — ${(tot*0.5).toFixed(1)} liter. En legitim helg.`;
+  if(tot>=20) note+=' ⚠️ Medicinsk varning: I-land-problem detekterade.';
+  return PIDS.map(pid=>{
+    const p=S.players[pid];
+    return actRow(pid,'ol',p.ol,'öl', b('+1',pid,'ol',1)+b('+2',pid,'ol',2)+b('−1',pid,'ol',-1));
+  }).join('')+`<div class="note">${note}</div>`;
+}
+
+function tUtfor() {
+  const tot=PIDS.reduce((s,p)=>s+S.players[p].utfor,0);
+  const note = tot===0 ? 'Inga åk registrerade. Liften väntar!' : `Gruppen: ${tot} åk totalt. ${tot<10?'Mer fart behövs!':'Pist-nivå uppnådd!'}`;
+  return PIDS.map(pid=>{
+    const p=S.players[pid];
+    return actRow(pid,'utfor',p.utfor,'åk', b('+1',pid,'utfor',1)+b('−1',pid,'utfor',-1));
+  }).join('')+`<div class="note">${note}</div>`;
+}
+
+function tMat() {
+  const ppbtns = PIDS.map(pid=>{
+    const m=PM[pid], sel=DP===pid;
+    return `<button class="ppick${sel?' on':''}" style="--pc:${m.color}" onclick="selDP('${pid}')"><span class="pe">${m.emo}</span>${m.name}</button>`;
+  }).join('');
+
+  const stars=[1,2,3,4,5].map(i=>`<button class="star${i<=DR?' on':''}" onclick="selDR(${i})">⭐</button>`).join('');
+  const canSub=DP&&DR>0;
+
+  const matScores=`<div class="mat-scores">${PIDS.map(pid=>{
+    const m=PM[pid], p=S.players[pid], rk=rankFor('mat');
+    return `<div class="mat-score-row" style="--pc:${m.color}"><span class="emo">${m.emo}</span><span class="name">${m.name}</span><span class="pts">${p.mat}<span style="font-size:0.65rem;color:var(--muted);margin-left:2px">p</span></span><span class="rank">${rankEmo(rk[pid])}</span></div>`;
+  }).join('')}</div>`;
+
+  const dishHist = S.dishes.length>0 ? `<div class="dish-list">
+    <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:7px">📋 Rätter som lagats:</div>
+    ${S.dishes.slice(0,12).map(d=>{
+      const m=PM[d.pid];
+      return `<div class="dish-item"><span>${m.emo}</span><span style="flex:1"><strong style="color:${m.color}">${m.name}</strong>: ${esc(d.name||'Namnlös rätt')}</span><span style="color:var(--gold)">${'⭐'.repeat(d.rating)}</span><span class="log-time">${fmt(d.ts)}</span></div>`;
+    }).join('')}
+  </div>` : '';
+
+  return `<div class="mat-form">
+    <h3>🍳 Registrera en rätt</h3>
+    <div class="player-grid">${ppbtns}</div>
+    <input class="dish-inp" id="dish-inp" type="text" placeholder="Vad lagades? (valfritt)" maxlength="50">
+    <div class="star-row">${stars}</div>
+    <button class="btn-submit" ${canSub?'':'disabled'} onclick="submitDish()">
+      ${canSub?`Lägg till ${DR} ⭐ — ${PM[DP].name}`:'Välj kock och betyg'}
+    </button>
+  </div>${matScores}${dishHist}`;
+}
+
+function selDP(pid){ DP=pid; document.getElementById('tab-mat').innerHTML=tMat(); }
+function selDR(r){   DR=r;   document.getElementById('tab-mat').innerHTML=tMat(); }
+
+function submitDish() {
+  if(!DP||!DR) return;
+  const inp=document.getElementById('dish-inp');
+  const name=(inp?inp.value.trim():'')||'Namnlös rätt';
+  const pid=DP, rating=DR;
+  DP=null; DR=0;
+  addDish(pid, name, rating);
+  toast(`🍳 ${PM[pid].name}s rätt tillagd! +${rating} matpoäng`);
+}
+
+function tBonus() {
+  const bacts=[
+    {k:'bastu',  lbl:'Bastuvispningar',    emo:'🧖', unit:'rnd'},
+    {k:'kortspel',lbl:'Kortspelsvinster',  emo:'🃏', unit:'v'},
+    {k:'snoboll',lbl:'Snöbollskrig-träffar',emo:'🤍',unit:'tr'},
+    {k:'klagan', lbl:'Klagomål',           emo:'😤', unit:'gg'}
+  ];
+  return bacts.map(({k,lbl,emo,unit})=>`
+    <div class="bonus-hdr">${emo} ${lbl}</div>
+    ${PIDS.map(pid=>actRow(pid,k,S.players[pid][k],unit, b('+1',pid,k,1)+b('−1',pid,k,-1))).join('')}
+  `).join('');
+}
+
+function renderTabs() {
+  document.getElementById('tab-langd').innerHTML = tLangd();
+  document.getElementById('tab-ol').innerHTML    = tOl();
+  document.getElementById('tab-utfor').innerHTML = tUtfor();
+  document.getElementById('tab-mat').innerHTML   = tMat();
+  document.getElementById('tab-bonus').innerHTML = tBonus();
+}
+
+// =====================================================================
+// RENDER — LEADERBOARD
+// =====================================================================
+
+function renderLB() {
+  const r=ranked();
+  document.getElementById('leaderboard').innerHTML =
+    r.map((x,i)=>{
+      const m=PM[x.id], p=S.players[x.id];
+      return `<div class="lb-row" style="--pc:${m.color}">
+        <div class="lb-rank">${rankEmo(i)}</div>
+        <div class="lb-emo">${m.emo}</div>
+        <div class="lb-info">
+          <div class="lb-name">${m.name}</div>
+          <div class="lb-detail">⛷️${p.langd}km · 🍺${p.ol} · 🎿${p.utfor} · 🍳${p.mat}p · 🧖${p.bastu} · 🃏${p.kortspel} · 🤍${p.snoboll}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="lb-pts">${x.s}</div>
+          <div class="lb-pts-unit">poäng</div>
+        </div>
+      </div>`;
+    }).join('') +
+    `<div class="note">Poängformel: Längd×2 + Öl×1 + Utför×3 + Mat×4 + Bastu×1 + Kortspel×2 + Snöboll×1</div>`;
+}
+
+// =====================================================================
+// RENDER — ACHIEVEMENTS
+// =====================================================================
+
+function renderAchs() {
+  document.getElementById('achievements').innerHTML = `<div class="ach-grid">${
+    ACHS.map(a=>{
+      const earners=PIDS.filter(p=>S.achs[p+'_'+a.id]);
+      const on=earners.length>0;
+      return `<div class="ach-card${on?' on':''}">
+        <span class="ach-emo">${a.emo}</span>
+        <div class="ach-name">${a.name}</div>
+        <div class="ach-desc">${a.desc}</div>
+        ${on?`<div class="ach-earners">🏆 ${earners.map(p=>PM[p].name).join(', ')}</div>`:''}
+      </div>`;
+    }).join('')
+  }</div>`;
+}
+
+// =====================================================================
+// RENDER — LOG
+// =====================================================================
+
+function renderLog() {
+  const el=document.getElementById('log');
+  if(!S.log.length){ el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--muted);font-style:italic">Inget har hänt ännu. Börja åka!</div>`; return; }
+  el.innerHTML=S.log.slice(0,20).map(e=>`
+    <div class="log-item">
+      <div class="log-emo">${PM[e.pid].emo}</div>
+      <div class="log-body">
+        <div class="log-txt">${esc(e.txt)}</div>
+        ${e.q?`<div class="log-quip">${esc(e.q)}</div>`:''}
+      </div>
+      <div class="log-time">${fmt(e.ts)}</div>
+    </div>`).join('');
+}
+
+// =====================================================================
+// RENDER — ALL
+// =====================================================================
+
+function renderAll() {
+  renderChars();
+  renderTabs();
+  renderLB();
+  renderAchs();
+  renderLog();
+  const el=document.getElementById('updated');
+  el.textContent = S.ts ? 'Senast uppdaterad: '+fmt(S.ts) : '📍 Messlingen, Härjedalen';
+}
+
+// =====================================================================
+// TAB SWITCHING
+// =====================================================================
+
+document.getElementById('tab-nav').addEventListener('click', function(e) {
+  const t = e.target.closest('.tb');
+  if (!t) return;
+  const tab = t.dataset.tab;
+  document.querySelectorAll('.tb').forEach(function(b){ b.classList.toggle('on', b.dataset.tab===tab); });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.toggle('on', p.id==='tab-'+tab); });
+  if (tab==='mat') document.getElementById('tab-mat').innerHTML = tMat();
+});
+
+// =====================================================================
+// TOASTS
+// =====================================================================
+
+function toast(msg, type) {
+  const c=document.getElementById('toasts');
+  const d=document.createElement('div');
+  d.className='toast '+(type||'');
+  d.textContent=msg;
+  c.appendChild(d);
+  setTimeout(function(){ d.remove(); }, 3300);
+}
+
+// =====================================================================
+// TICKER
+// =====================================================================
+
+function tickerMsgs() {
+  const r=ranked(), tot_ol=PIDS.reduce((s,p)=>s+S.players[p].ol,0);
+  const tot_l=PIDS.reduce((s,p)=>s+S.players[p].langd,0);
+  const msgs=[
+    '⛷️ Välkommen till Messlingen 2026! Ladda skidorna. Och ölkylen.',
+    '🍺 Viktigt: Öl räknas som sportdryck denna helg. Inga diskussioner.',
+    '❄️ Härjedalen hälsar: det är kallt. Det är meningen.',
+    '🤒 Mange-rapport: tungan oklar, humöret stabilt, ölsuget maxat.',
+    '🤖 Flevy har troligtvis redan frågat Claude om detta tickermeddelande.',
+    '🚴 Andy saknar sin cykel. Djupt. Innerst inne.',
+    '⚽ Habbe kollar Kalmar FF:s tabell. Den är... vad den är.',
+    '🏒 HV71-uppdatering: Habbe är inte nöjd. Aldrig.',
+    '🎿 Tips: Det är lättare att åka nerför backen om man väljer rätt backe.',
+  ];
+  if(r[0].s>0) msgs.push('🥇 Leder just nu: '+PM[r[0].id].name+' med '+r[0].s+'p — '+PM[r[r.length-1].id].name+' på '+r[r.length-1].s+'p är sist!');
+  if(tot_ol>0) msgs.push('🍺 Gruppen har druckit '+tot_ol+' öl. Det är '+(tot_ol*0.5).toFixed(1)+' liter. Ingen kommentar.');
+  if(tot_l>0)  msgs.push('⛷️ Gruppen: '+tot_l+' km längd totalt! Trondheim är bara '+Math.round(4600-tot_l)+' km till.');
+  return msgs;
+}
+
+var _ti=0;
+function rotateTicker(){
+  const msgs=tickerMsgs();
+  _ti=(_ti+1)%msgs.length;
+  const el=document.getElementById('ticker-txt');
+  if(!el) return;
+  el.style.animation='none'; void el.offsetWidth;
+  el.textContent=msgs[_ti];
+  el.style.animation='scroll 22s linear 1';
+}
+setInterval(rotateTicker, 23000);
+
+// =====================================================================
+// EXPORT
+// =====================================================================
+
+function exportScores() {
+  const r=ranked();
+  const d=new Date().toLocaleDateString('sv-SE');
+  const t=new Date().toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
+  var txt='⛷️ MESSLINGEN 2026 — '+d+' '+t+'\n'+'─'.repeat(36)+'\n\n';
+  r.forEach(function(x,i){
+    const p=S.players[x.id], m=PM[x.id];
+    txt+=rankEmo(i)+' '+m.name+': '+x.s+' poäng\n';
+    txt+='   ⛷️ '+p.langd+'km  🍺 '+p.ol+'st  🎿 '+p.utfor+'åk  🍳 '+p.mat+'p\n\n';
+  });
+  txt+='Skapad med ❤️ i Messlingen 2026\n';
+
+  if(navigator.share) {
+    navigator.share({title:'Messlingen 2026', text:txt}).catch(function(){ clip(txt); });
+  } else { clip(txt); }
+}
+
+function clip(txt) {
+  if(navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(function(){ toast('📋 Kopierat till urklipp!'); });
+  } else {
+    var ta=document.createElement('textarea');
+    ta.value=txt; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); toast('📋 Kopierat!'); } catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+
+// =====================================================================
+// RESET
+// =====================================================================
+
+var _rt=null;
+function handleReset() {
+  const btn=document.getElementById('reset-btn');
+  if(!btn.classList.contains('armed')) {
+    btn.classList.add('armed');
+    btn.textContent='⚠️ SÄKER? Tryck igen för att nollställa ALLT';
+    _rt=setTimeout(function(){
+      btn.classList.remove('armed');
+      btn.textContent='🗑️ Nollställ allt';
+    }, 4500);
+  } else {
+    clearTimeout(_rt);
+    S=blankState(); DP=null; DR=0;
+    save(); renderAll();
+    btn.classList.remove('armed');
+    btn.textContent='🗑️ Nollställ allt';
+    toast('💨 Nollställt! Ny omgång börjar nu.');
+  }
+}
+
+// =====================================================================
+// FOOTER BUTTONS — event listeners (undviker inline-onclick-problem)
+// =====================================================================
+
+document.getElementById('share-btn').addEventListener('click', exportScores);
+document.getElementById('reset-btn').addEventListener('click', handleReset);
+
+// =====================================================================
+// SNOWFLAKES
+// =====================================================================
+
+(function(){
+  const c=document.getElementById('snow');
+  const syms=['❄','❅','❆','·','*','·'];
+  for(var i=0;i<28;i++){
+    const f=document.createElement('span');
+    f.className='flake';
+    f.textContent=syms[i%syms.length];
+    f.style.left=Math.random()*100+'vw';
+    f.style.fontSize=(Math.random()*9+7)+'px';
+    f.style.animationDuration=(Math.random()*9+6)+'s';
+    f.style.animationDelay=(Math.random()*12)+'s';
+    f.style.opacity=Math.random()*0.45+0.15;
+    c.appendChild(f);
+  }
+})();
+
+// =====================================================================
+// INIT — Firebase eller localStorage
+// =====================================================================
+
+// =====================================================================
+// INIT — hämta data från Supabase, starta polling
+// =====================================================================
+
+function fetchRemote() {
+  return fetch(SB_URL + '/rest/v1/data?id=eq.messlingen&select=value', {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(rows) {
+    if (rows && rows.length > 0 && rows[0].value) {
+      return mergeState(rows[0].value);
+    }
+    return blankState();
+  });
+}
+
+if (READY) {
+  setSyncStatus('🔄 Hämtar data...', 'loading');
+  fetchRemote()
+    .then(function(data) {
+      S = data;
+      _lastSavedTs = S.ts;
+      setSyncStatus('✅ Ansluten — delar data med alla', 'ok');
+      renderAll();
+    })
+    .catch(function() {
+      setSyncStatus('⚠️ Offline — lokala data', 'warn');
+      try { const r=localStorage.getItem('m2026'); if(r) S=JSON.parse(r); } catch(e){}
+      renderAll();
+    });
+
+  // Polling var 5:e sekund
+  setInterval(function() {
+    fetchRemote()
+      .then(function(data) {
+        if (data.ts && data.ts !== S.ts) {
+          S = data;
+          _lastSavedTs = S.ts;
+          setSyncStatus('🔄 Ny data! ' + fmt(S.ts), 'ok');
+          renderAll();
+        } else {
+          setSyncStatus('✅ Live', 'ok');
+        }
+      })
+      .catch(function() { /* tyst fel */ });
+  }, 5000);
+
+} else {
+  // Supabase ej konfigurerat — visa lokal lagring + instruktioner
+  setSyncStatus('⚠️ Lokal lagring · konfigurera Supabase för delad sync', 'warn');
+  document.getElementById('setup-banner').style.display = 'block';
+  document.getElementById('setup-banner').innerHTML = `
+    <h3>🗄️ Aktivera delad lagring — 4 steg!</h3>
+    <ol>
+      <li>Gå till <strong>supabase.com</strong> → logga in med GitHub</li>
+      <li>New Project → namn: <code>messlingen</code></li>
+      <li>SQL Editor → kör:<br><code>create table data (id text primary key, value jsonb not null default '{}');<br>insert into data values ('messlingen', '{}');<br>alter table data disable row level security;</code></li>
+      <li>Project Settings → API → kopiera URL + anon key → klistra in i index.html</li>
+    </ol>`;
+  try { const r=localStorage.getItem('m2026'); if(r) S=JSON.parse(r); } catch(e){}
+  renderAll();
+}
+
+</script>
+</body>
+</html>
