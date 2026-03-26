@@ -85,6 +85,7 @@
       text-align: center;
       position: relative;
       z-index: 1;
+      margin-top: 30px;
     }
 
     header h1 {
@@ -131,6 +132,35 @@
     .sync-dot.warn { background: #f59e0b; box-shadow: 0 0 5px #f59e0b88; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .sync-dot.loading { animation: pulse 1s ease infinite; }
+
+    /* FEATURE ANNOUNCEMENT BANNER */
+    #feature-banner {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: linear-gradient(135deg, #1a1040, #0f2744);
+      border: 1px solid #7c3aed;
+      border-left: 4px solid #a78bfa;
+      border-radius: var(--r);
+      padding: 12px 12px 12px 14px;
+      margin-bottom: 14px;
+      font-size: 0.8rem; line-height: 1.6;
+      animation: slideIn 0.4s ease;
+    }
+    #feature-banner.hidden { display: none; }
+    @keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+    .fb-tag {
+      background: #7c3aed; color: white; font-size: 0.65rem; font-weight: 800;
+      padding: 2px 7px; border-radius: 99px; white-space: nowrap; margin-top: 2px; flex-shrink: 0;
+    }
+    .fb-content { flex: 1; color: var(--text); }
+    .fb-content strong { color: #c4b5fd; font-size: 0.85rem; }
+    .fb-content b { color: #a78bfa; }
+    .fb-close {
+      background: none; border: none; color: var(--muted); font-size: 1rem;
+      cursor: pointer; padding: 0 2px; flex-shrink: 0; line-height: 1;
+      -webkit-tap-highlight-color: transparent; min-width: 28px; min-height: 28px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .fb-close:active { color: var(--text); }
 
     /* FIREBASE SETUP BANNER */
     #setup-banner {
@@ -426,8 +456,27 @@
       100% { transform: translateX(-100%); }
     }
 
+    /* TOP TICKER */
+    #top-ticker {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: linear-gradient(90deg, #1E293B, #0F172A);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      font-size: 0.7rem; color: #F59E0B;
+      z-index: 300;
+      overflow: hidden; white-space: nowrap;
+      height: 30px;
+      display: flex; align-items: center;
+    }
+    #top-ticker-txt { display: inline-block; animation: scrollFast 13s linear infinite; }
+    @keyframes scrollFast {
+      0%   { transform: translateX(100vw); }
+      100% { transform: translateX(-100%); }
+    }
+
     /* TOASTS */
-    #toasts { position: fixed; top: 14px; right: 14px; z-index: 999; display: flex; flex-direction: column; gap: 7px; pointer-events: none; }
+    #toasts { position: fixed; top: 44px; right: 14px; z-index: 999; display: flex; flex-direction: column; gap: 7px; pointer-events: none; }
     .toast {
       background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
       padding: 10px 14px; font-size: 0.82rem; max-width: 260px;
@@ -456,6 +505,19 @@
     .btn-reset { background: var(--surface); border: 1px solid #ef4444; color: #ef4444; }
     .btn-reset.armed { background: #ef4444; color: white; }
 
+    /* VOTE FORM */
+    .vote-form { background: var(--surface); border-radius: var(--r); border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; }
+    .vote-form h3 { font-size: 0.85rem; color: var(--muted); font-weight: 600; margin-bottom: 11px; }
+    .vote-inp { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 8px; font-size: 16px; margin-bottom: 9px; }
+    .vote-inp::placeholder { color: var(--muted); }
+    .vote-select { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 8px; font-size: 16px; margin-bottom: 9px; appearance: none; }
+    .vote-btn { width: 100%; background: var(--accent); color: #0F172A; border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; cursor: pointer; min-height: 48px; }
+    .vote-summary { margin-top: 12px; }
+    .vote-row { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface); border-radius: 8px; margin-bottom: 6px; border: 1px solid var(--border); border-left: 3px solid var(--pc); }
+    .vote-bar { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+    .vote-bar-fill { height: 100%; background: var(--pc); border-radius: 4px; transition: width 0.4s; }
+    .vote-voters { font-size: 0.68rem; color: var(--muted); margin-top: 4px; }
+
     /* RESPONSIVE */
     @media (min-width: 560px) {
       #chars-row { display: grid; grid-template-columns: repeat(2, 1fr); overflow-x: visible; }
@@ -472,6 +534,8 @@
   </style>
 </head>
 <body>
+
+<div id="top-ticker"><span id="top-ticker-txt">🔥 BREAKING: Fyra medelålders män tror fortfarande att de är i 30-årsåldern. Messlingen håller tyst.</span></div>
 
 <div id="snow" aria-hidden="true"></div>
 
@@ -490,6 +554,18 @@
   <!-- placeholder, används ej längre -->
   <div id="setup-banner" style="display:none"></div>
 
+  <!-- NY FEATURE BANNER -->
+  <div id="feature-banner">
+    <div class="fb-tag">🆕 NYTT</div>
+    <div class="fb-content">
+      <strong>Nya features denna helg!</strong><br>
+      🗳️ <b>Rösta på vinnaren</b> — scrolla ner till "Vinnartips"<br>
+      💡 <b>Oaccepterade fakta</b> — ny tab i menyn nedan<br>
+      🍷 <b>Vin räknas nu!</b> — registrera under Bonus-fliken
+    </div>
+    <button class="fb-close" onclick="dismissBanner()" aria-label="Stäng">✕</button>
+  </div>
+
   <!-- CHARACTERS -->
   <div class="sec-title">👥 Spelarna</div>
   <div id="chars-row"></div>
@@ -501,10 +577,15 @@
   <div id="tab-utfor" class="tab-panel"></div>
   <div id="tab-mat"   class="tab-panel"></div>
   <div id="tab-bonus" class="tab-panel"></div>
+  <div id="tab-fakta" class="tab-panel"></div>
 
   <!-- LEADERBOARD -->
   <div class="sec-title">🥇 Totalpoäng</div>
   <div id="leaderboard"></div>
+
+  <!-- VOTES -->
+  <div class="sec-title">🗳️ Vinnartips</div>
+  <div id="votes-section"></div>
 
   <!-- ACHIEVEMENTS -->
   <div class="sec-title">🏅 Achievements</div>
@@ -529,6 +610,7 @@
   <button class="tb" data-tab="utfor"><span class="nav-icon">🎿</span>Utför</button>
   <button class="tb" data-tab="mat"><span class="nav-icon">🍳</span>Mat</button>
   <button class="tb" data-tab="bonus"><span class="nav-icon">⭐</span>Bonus</button>
+  <button class="tb" data-tab="fakta"><span class="nav-icon">💡</span>Fakta</button>
 </nav>
 
 <div id="ticker"><span id="ticker-txt">⛷️ Välkommen till Messlingen 2026! Ladda skidorna. Och ölkylen.</span></div>
@@ -567,11 +649,11 @@ const PIDS = ['mange','flevy','andy','habbe'];
 // =====================================================================
 
 function blankPlayer() {
-  return { langd:0, ol:0, utfor:0, mat:0, bastu:0, kortspel:0, snoboll:0, klagan:0 };
+  return { langd:0, ol:0, utfor:0, mat:0, bastu:0, kortspel:0, snoboll:0, klagan:0, fakta:0, vin:0 };
 }
 function blankState() {
   return { players:{ mange:blankPlayer(), flevy:blankPlayer(), andy:blankPlayer(), habbe:blankPlayer() },
-           achs:{}, dishes:[], log:[], ts:null };
+           achs:{}, dishes:[], log:[], votes:[], ts:null };
 }
 
 function mergeState(d) {
@@ -584,6 +666,7 @@ function mergeState(d) {
   b.achs   = d.achs   || {};
   b.dishes = Array.isArray(d.dishes) ? d.dishes : [];
   b.log    = Array.isArray(d.log)    ? d.log    : [];
+  b.votes  = Array.isArray(d.votes)  ? d.votes  : [];
   b.ts     = d.ts     || null;
   return b;
 }
@@ -661,7 +744,7 @@ function save() {
 // =====================================================================
 
 function score(p) {
-  return p.langd*2 + p.ol*1 + p.utfor*3 + p.mat*4 + p.bastu*1 + p.kortspel*2 + p.snoboll*1;
+  return p.langd*2 + p.ol*1 + p.utfor*3 + p.mat*4 + p.bastu*1 + p.kortspel*2 + p.snoboll*1 + p.fakta*3 + p.vin*1;
 }
 
 function ranked() {
@@ -729,22 +812,26 @@ const LQ = {
           ol:   ['"Ja, dä va gott det!"','Skånsk stämning!','"En till kan väl inte skada?"'],
           utfor:['Mange rusar utför!','"Backen e inte lika flat som hemma!"','Skidorna sjunger!'],
           mat:  ['"I Skåne gör vi det annorlunda."','Kulinarisk Skåning!','Mange lagar mat!'],
-          klagan:['Mange klagar igen...','En ny dag, ett nytt klagomål.','Tungan? Knäna? Ryggen?'] },
+          klagan:['Mange klagar igen...','En ny dag, ett nytt klagomål.','Tungan? Knäna? Ryggen?'],
+          fakta:['Mange hävdar. Gruppen nickar.','Obevisbart men övertygande!','Skånsk sanning!'] },
   flevy:{ langd:['Claude-optimerad teknik!','AI förutspådde detta!','Paddelmuskler fungerar!'],
           ol:   ['Claude ser och dömer.','Temporärt Claude-uppehåll!','"Jag frågade Claude..."'],
           utfor:['Padel-instinkterna sparkar in!','"Claude sa att det var säkert."','Flevy rusar utför!'],
           mat:  ['"Claude gav receptet."','AI-inspirerad matlagning!','Flevy lagar mat!'],
-          kortspel:['Flevy vinner! Claude förutspådde det.','Strategisk seger!'] },
+          kortspel:['Flevy vinner! Claude förutspådde det.','Strategisk seger!'],
+          fakta:['Claude som källa. Gruppen accepterar.','AI-fakta passerar!','Obevisbart men korrekt?'] },
   andy: { langd:['"Det är typ som att cykla!"','Andy rullar på!','Cykelinstinkterna hjälper!'],
           ol:   ['Kalorier kalkyleras...','Andy kopplar av!','"Bara en cykelkrog-öl."'],
           utfor:['"Vart är pedalerna?!"','Andy conquers!','Utan cykel men med stil!'],
           mat:  ['"Carb-loading, men för skidor."','Andy lagar mat!','Välnärd cyklist!'],
-          kortspel:['Andy vinner med cykelstrategi!','Datastyrd seger!'] },
+          kortspel:['Andy vinner med cykelstrategi!','Datastyrd seger!'],
+          fakta:['Andy hävdar. Tekniskt möjligt.','Cykelfysik appliceras på skidor!','Obevisbart men coolt.'] },
   habbe:{ langd:['HV71-kondis testas!','Kalmar-andan driver!','Habbe kämpar!'],
           ol:   ['Kalmar FF-sorg medicineras.','HV71-minnen dränks.','"Skål för Kalmar!"'],
           utfor:['Habbe rusar utför!','Som en Kalmar-forward!','Habbe i full fart!'],
           mat:  ['Småländskt recept (billigast)!','"I Kalmar äter vi annorlunda."','Habbe lagar mat!'],
-          kortspel:['Habbe vinner! Kalmar FF-lycka!','HV71-strategi funkar!'] }
+          kortspel:['Habbe vinner! Kalmar FF-lycka!','HV71-strategi funkar!'],
+          fakta:['Habbe vet exakt varför. Ingen kollar.','Kalmar-statistik: obevisbar.','Gruppen nickar.'] }
 };
 
 function lq(pid, act) {
@@ -805,7 +892,7 @@ function upd(pid, act, delta) {
 
   if(delta!==0) {
     const enames={langd:'⛷️ längd',ol:'🍺 öl',utfor:'🎿 utförsåk',mat:'🍳 matpoäng',
-                  bastu:'🧖 bastu',kortspel:'🃏 kortspel',snoboll:'🤍 snöboll',klagan:'😤 klagomål'};
+                  bastu:'🧖 bastu',kortspel:'🃏 kortspel',snoboll:'🤍 snöboll',klagan:'😤 klagomål',fakta:'💡 fakta',vin:'🍷 vin'};
     const txt = delta>0
       ? `${PM[pid].name} loggade +${Math.abs(delta)} ${enames[act]}`
       : `${PM[pid].name} korrigerade −${Math.abs(delta)} ${enames[act]}`;
@@ -968,6 +1055,7 @@ function submitDish() {
 
 function tBonus() {
   const bacts=[
+    {k:'vin',    lbl:'Glas vin',           emo:'🍷', unit:'gl'},
     {k:'bastu',  lbl:'Bastuvispningar',    emo:'🧖', unit:'rnd'},
     {k:'kortspel',lbl:'Kortspelsvinster',  emo:'🃏', unit:'v'},
     {k:'snoboll',lbl:'Snöbollskrig-träffar',emo:'🤍',unit:'tr'},
@@ -979,12 +1067,54 @@ function tBonus() {
   `).join('');
 }
 
+function faktaQuip(pid) {
+  const p = S.players[pid];
+  const n = p.fakta;
+  if (pid==='flevy') {
+    if (n>=5) return 'Flevy citerar Claude som källa. Gruppen accepterar. Ingen vet varför.';
+    if (n>=3) return 'Flevy har AI-bevis. Ingen kan motbevisa. Ingen försöker.';
+    if (n>=1) return 'Flevy påstår. Gruppen nickar. Fakta är fakta nu.';
+    return 'Flevy förbereder sina fakta. Claude är på standby.';
+  }
+  if (pid==='andy') {
+    if (n>=5) return 'Andy hävdar att cykelskor är bättre skidskor. Tekniskt möjligt.';
+    if (n>=3) return 'Andy tillämpar cykelvetenskap på skidor. Gruppen lyssnar.';
+    if (n>=1) return 'Andy vet. Han har cyklat. Det är samma sak.';
+    return 'Andy funderar på ett faktapåstående. Troligtvis cykelrelaterat.';
+  }
+  if (pid==='mange') {
+    if (n>=5) return 'Mange påstår att skånsk dialekt uppfanns av vikingarna. Obevisbart.';
+    if (n>=3) return 'Mange har skånska fakta. Ingen kan verifiera. Perfekt.';
+    if (n>=1) return 'Mange hävdar. Tungan stöder teorin. Gruppen accepterar.';
+    return 'Mange samlar på sig fakta. De är troligtvis från Skåne.';
+  }
+  if (pid==='habbe') {
+    if (n>=5) return 'Habbe vet exakt varför Kalmar FF förlorade 1987. Ingen kollar.';
+    if (n>=3) return 'Habbe har HV71-statistik ingen kan verifiera. Gruppen nickar.';
+    if (n>=1) return 'Habbe påstår. Det låter trovärdigt. Det är nog inte sant.';
+    return 'Habbe förbereder en fotbollsfakta. Kalmar FF är inblandade.';
+  }
+  return '...';
+}
+
+function tFakta() {
+  const note = 'Fakta som gruppen accepterat utan att kunna googla. Varje faktapåstående = 3 poäng. Exempel: "En fjäril flyger 200 km/h." Habbe nickade.';
+  return `<div class="note" style="margin-bottom:12px;margin-top:0">${note}</div>` +
+    PIDS.map(pid=>{
+      const p=S.players[pid];
+      const quipTxt = faktaQuip(pid);
+      return actRow(pid,'fakta',p.fakta,'fakta', b('+1',pid,'fakta',1)+b('−1',pid,'fakta',-1)) +
+        `<div class="note" style="margin-top:-4px;margin-bottom:12px;font-style:italic;font-size:0.72rem">${esc(quipTxt)}</div>`;
+    }).join('');
+}
+
 function renderTabs() {
   document.getElementById('tab-langd').innerHTML = tLangd();
   document.getElementById('tab-ol').innerHTML    = tOl();
   document.getElementById('tab-utfor').innerHTML = tUtfor();
   document.getElementById('tab-mat').innerHTML   = tMat();
   document.getElementById('tab-bonus').innerHTML = tBonus();
+  document.getElementById('tab-fakta').innerHTML = tFakta();
 }
 
 // =====================================================================
@@ -1001,7 +1131,7 @@ function renderLB() {
         <div class="lb-emo">${m.emo}</div>
         <div class="lb-info">
           <div class="lb-name">${m.name}</div>
-          <div class="lb-detail">⛷️${p.langd}km · 🍺${p.ol} · 🎿${p.utfor} · 🍳${p.mat}p · 🧖${p.bastu} · 🃏${p.kortspel} · 🤍${p.snoboll}</div>
+          <div class="lb-detail">⛷️${p.langd}km · 🍺${p.ol} · 🍷${p.vin} · 🎿${p.utfor} · 🍳${p.mat}p · 🧖${p.bastu} · 🃏${p.kortspel} · 🤍${p.snoboll} · 💡${p.fakta}</div>
         </div>
         <div style="text-align:right">
           <div class="lb-pts">${x.s}</div>
@@ -1009,7 +1139,67 @@ function renderLB() {
         </div>
       </div>`;
     }).join('') +
-    `<div class="note">Poängformel: Längd×2 + Öl×1 + Utför×3 + Mat×4 + Bastu×1 + Kortspel×2 + Snöboll×1</div>`;
+    `<div class="note">Poängformel: Längd×2 + Öl×1 + Vin×1 + Utför×3 + Mat×4 + Bastu×1 + Kortspel×2 + Snöboll×1 + Fakta×3</div>`;
+}
+
+// =====================================================================
+// RENDER — VOTES
+// =====================================================================
+
+function renderVotes() {
+  const el = document.getElementById('votes-section');
+  if (!el) return;
+
+  const opts = PIDS.map(pid=>`<option value="${pid}">${PM[pid].name}</option>`).join('');
+  const totalVotes = S.votes.length;
+  const maxVotes = Math.max(1, ...PIDS.map(pid=>S.votes.filter(v=>v.pick===pid).length));
+
+  const summaryRows = PIDS.map(pid=>{
+    const m = PM[pid];
+    const voteCount = S.votes.filter(v=>v.pick===pid).length;
+    const pct = totalVotes>0 ? Math.round(voteCount/totalVotes*100) : 0;
+    const voters = S.votes.filter(v=>v.pick===pid).map(v=>esc(v.voter)).join(', ');
+    const barWidth = maxVotes>0 ? Math.round(voteCount/maxVotes*100) : 0;
+    return `<div class="vote-row" style="--pc:${m.color}">
+      <div style="min-width:60px;font-size:0.82rem;font-weight:700;color:${m.color}">${m.emo} ${m.name}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="vote-bar"><div class="vote-bar-fill" style="width:${barWidth}%;background:${m.color}"></div></div>
+          <span style="font-size:0.78rem;font-weight:800;min-width:32px;text-align:right">${voteCount} röst${voteCount!==1?'er':''}</span>
+        </div>
+        ${voters?`<div class="vote-voters">👤 ${voters}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="vote-form">
+    <h3>🗳️ Vem vinner helgen?</h3>
+    <input class="vote-inp" id="vote-name-inp" type="text" placeholder="Ditt namn" maxlength="30" autocomplete="off">
+    <select class="vote-select" id="vote-pick-sel">
+      <option value="">— Välj vinnare —</option>
+      ${opts}
+    </select>
+    <button class="vote-btn" onclick="submitVote()">Rösta!</button>
+  </div>
+  ${totalVotes>0?`<div class="vote-summary">${summaryRows}</div>`:'<div class="note">Ingen har röstat ännu. Var först!</div>'}`;
+}
+
+function submitVote() {
+  const nameEl = document.getElementById('vote-name-inp');
+  const pickEl = document.getElementById('vote-pick-sel');
+  if (!nameEl || !pickEl) return;
+  const voter = nameEl.value.trim();
+  const pick  = pickEl.value;
+  if (!voter || !pick) {
+    toast('Fyll i ditt namn och välj en vinnare!');
+    return;
+  }
+  // Upsert: remove existing vote from same voter
+  S.votes = S.votes.filter(v=>v.voter.toLowerCase()!==voter.toLowerCase());
+  S.votes.push({ voter, pick, ts: new Date().toISOString() });
+  toast(`🗳️ ${voter} röstade på ${PM[pick].name}!`);
+  save();
+  renderAll();
 }
 
 // =====================================================================
@@ -1057,8 +1247,10 @@ function renderAll() {
   renderChars();
   renderTabs();
   renderLB();
+  renderVotes();
   renderAchs();
   renderLog();
+  rotateTopTicker();
   const el=document.getElementById('updated');
   el.textContent = S.ts ? 'Senast uppdaterad: '+fmt(S.ts) : '📍 Messlingen, Härjedalen';
 }
@@ -1129,6 +1321,57 @@ function rotateTicker(){
 setInterval(rotateTicker, 23000);
 
 // =====================================================================
+// TOP TICKER
+// =====================================================================
+
+function topTickerInsults() {
+  const r=ranked();
+  const tot_ol=PIDS.reduce((s,p)=>s+S.players[p].ol,0);
+  const mange=S.players['mange'], flevy=S.players['flevy'], andy=S.players['andy'], habbe=S.players['habbe'];
+
+  const msgs=[
+    '🔥 BREAKING: Fyra medelålders män tror fortfarande att de är i 30-årsåldern. Messlingen håller tyst.',
+    '💡 '+PM['flevy'].name+' har frågat Claude '+(Math.floor(Math.random()*47)+12)+' gånger sedan frukost. Claude svarar fortfarande.',
+    '🏒 HV71-special: Habbe kollar telefonens sport-app var 4:e minut. Resultaten förbättras inte av detta.',
+    '⚽ Kalmar FF:s seriefinal: oklart. Habbe verkar påverkad.',
+    '🤒 Mange-lägesrapport: tungan oklar, åsikterna starka, skånska ursäkter redo.',
+    '🚴 Andy såg en cykel i ett fönster i Funäsdalen. Han stannade i 4 minuter. Gruppen gick vidare.',
+    '🤖 Flevy frågade Claude om optimalt skidvax. Claude svarade. Flevy frågade 3 följdfrågor.',
+    '🍺 Öl-filosofi: Om ett öl faller i skogen och ingen registrerar det i appen, räknas det? (Nej.)',
+    '⛷️ Fjälltips: Det är lättare att åka utför än uppför. Gruppen har ännu inte testat uppför frivilligt.',
+  ];
+
+  if(r[0].s>0) msgs.push('🥇 '+PM[r[0].id].name+' leder just nu med '+r[0].s+' poäng och har redan börjat skriva sitt segertal. I huvudet.');
+  if(tot_ol>5) msgs.push('🍺 STATISTIK: Gruppen har druckit '+tot_ol+' öl. Medicinska rådet rekommenderar vatten. Gruppen ignorerar medicinska rådet.');
+
+  if(mange.klagan>=3) msgs.push('😤 Mange-klagometer: '+mange.klagan+' klagomål registrerade. Tungan är involverad i minst '+Math.ceil(mange.klagan*0.7)+'.');
+  if(mange.ol>=2) msgs.push('🍺 Mange har druckit '+mange.ol+' öl. Skånska accenten har nått kritisk massa.');
+
+  if(flevy.fakta>=2) msgs.push('💡 Flevy har bidragit med '+flevy.fakta+' "fakta" som ingen kan verifiera. Claude är källan. Fallet avslutat.');
+  if(flevy.ol>=2) msgs.push('🤖 Flevy frågade Claude om alkoholmetabolism efter öl nummer '+flevy.ol+'. Claude svarade utförligt.');
+
+  if(andy.langd>=5) msgs.push('🚴 Andy har åkt '+andy.langd+' km längd. "Det är exakt som att cykla, fast sämre," rapporterar han.');
+  if(andy.utfor>=3) msgs.push('🎿 Andy: '+andy.utfor+' utförsåkningar utan cykel. Det kallas framsteg.');
+
+  if(habbe.ol>=3) msgs.push('🏒 Habbe har druckit '+habbe.ol+' öl och förklarat HV71:s taktik för gruppen. Gruppen lyssnade på ett öl.');
+  if(habbe.utfor>=3) msgs.push('⚽ Habbe: '+habbe.utfor+' utförsåkningar. Lika många som Kalmar FF:s mål senaste månaden. Troligtvis.');
+
+  return msgs;
+}
+
+var _tti=0;
+function rotateTopTicker(){
+  const msgs=topTickerInsults();
+  _tti=(_tti+1)%msgs.length;
+  const el=document.getElementById('top-ticker-txt');
+  if(!el) return;
+  el.style.animation='none'; void el.offsetWidth;
+  el.textContent=msgs[_tti];
+  el.style.animation='scrollFast 13s linear 1';
+}
+setInterval(rotateTopTicker, 14000);
+
+// =====================================================================
 // EXPORT
 // =====================================================================
 
@@ -1195,10 +1438,25 @@ document.getElementById('reset-btn').addEventListener('click', handleReset);
 // WINDOW SCOPE — krävs för inline onclick i dynamiskt renderad HTML
 // Utan detta funkar inte knapparna på vissa mobilbrowsers (Safari/WebView)
 // =====================================================================
-window.upd         = upd;
-window.selDP       = selDP;
-window.selDR       = selDR;
-window.submitDish  = submitDish;
+window.upd           = upd;
+window.selDP         = selDP;
+window.selDR         = selDR;
+window.submitDish    = submitDish;
+window.submitVote    = submitVote;
+window.dismissBanner = dismissBanner;
+
+function dismissBanner() {
+  const el = document.getElementById('feature-banner');
+  if (el) el.classList.add('hidden');
+  try { localStorage.setItem('m2026_banner_v2', '1'); } catch(e){}
+}
+// Auto-hide if already dismissed
+(function(){
+  try { if(localStorage.getItem('m2026_banner_v2')) {
+    const el=document.getElementById('feature-banner');
+    if(el) el.classList.add('hidden');
+  }} catch(e){}
+})();
 
 // =====================================================================
 // SNOWFLAKES
