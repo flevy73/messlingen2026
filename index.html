@@ -538,7 +538,16 @@
     #login-box h2 { font-size: 1.4rem; font-weight: 900; color: var(--accent); margin-bottom: 6px; }
     .login-sub { color: var(--muted); font-size: 0.82rem; margin-bottom: 20px; }
     .login-error { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #f87171; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; margin-bottom: 10px; }
-    .login-note { color: var(--muted); font-size: 0.72rem; margin-top: 12px; line-height: 1.5; }
+    .login-note { color: var(--muted); font-size: 0.72rem; margin-top: 10px; line-height: 1.5; }
+    .login-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0 10px; color: var(--muted); font-size: 0.75rem; }
+    .login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .guest-btn {
+      width: 100%; background: transparent; border: 1px solid var(--border);
+      color: var(--muted); padding: 11px; border-radius: 8px; font-size: 0.88rem;
+      font-weight: 600; cursor: pointer; min-height: 44px;
+      transition: border-color 0.15s, color 0.15s; -webkit-tap-highlight-color: transparent;
+    }
+    .guest-btn:active { border-color: var(--accent); color: var(--accent); }
 
     /* RESPONSIVE */
     @media (min-width: 560px) {
@@ -573,7 +582,9 @@
     <input id="login-pw-inp" class="vote-inp" type="password" placeholder="Lösenord" autocomplete="current-password">
     <div id="login-error" style="display:none" class="login-error">Fel lösenord. Tips: lösenordet är ditt namn.</div>
     <button id="login-btn" class="vote-btn" onclick="doLogin()">Logga in</button>
-    <p class="login-note">💡 Lösenord = ditt namn · 🗳️ Rösta utan inloggning: scrolla ner</p>
+    <div class="login-divider"><span>eller</span></div>
+    <button class="guest-btn" onclick="continueAsGuest()">👀 Fortsätt som åskådare</button>
+    <p class="login-note">Åskådare kan se allt och rösta på vinnaren men inte registrera aktiviteter.</p>
   </div>
 </div>
 
@@ -679,7 +690,18 @@ const READY     = SB_URL !== 'DIN_SUPABASE_URL';
 // LOGIN
 // =====================================================================
 
-let CURRENT_USER = null;
+let CURRENT_USER = null; // null = ej inloggad, '__guest__' = åskådare, 'Mange' etc = inloggad
+
+function isLoggedIn() { return CURRENT_USER && CURRENT_USER !== '__guest__'; }
+
+function continueAsGuest() {
+  CURRENT_USER = '__guest__';
+  try { sessionStorage.setItem('m2026_guest', '1'); } catch(e){}
+  const overlay = document.getElementById('login-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  updateLoginBadge();
+  renderAll();
+}
 
 function doLogin() {
   const nameEl = document.getElementById('login-name-sel');
@@ -702,7 +724,7 @@ function doLogin() {
 
 function doLogout() {
   CURRENT_USER = null;
-  try { localStorage.removeItem('m2026_user'); } catch(e){}
+  try { localStorage.removeItem('m2026_user'); sessionStorage.removeItem('m2026_guest'); } catch(e){}
   const overlay = document.getElementById('login-overlay');
   if (overlay) overlay.classList.remove('hidden');
   const pw = document.getElementById('login-pw-inp');
@@ -714,7 +736,9 @@ function doLogout() {
 function updateLoginBadge() {
   const el = document.getElementById('login-badge');
   if (!el) return;
-  if (CURRENT_USER) {
+  if (CURRENT_USER === '__guest__') {
+    el.innerHTML = `<span style="color:var(--muted)">👀 Åskådare</span> <button onclick="doLogout()" style="background:none;border:none;color:var(--accent);font-size:0.7rem;cursor:pointer;padding:2px 6px;border-radius:4px;margin-left:4px;text-decoration:underline">Logga in</button>`;
+  } else if (CURRENT_USER) {
     el.innerHTML = `<span style="color:var(--accent)">👤 ${esc(CURRENT_USER)}</span> <button onclick="doLogout()" style="background:none;border:none;color:var(--muted);font-size:0.7rem;cursor:pointer;padding:2px 6px;border-radius:4px;margin-left:4px">Byt</button>`;
   } else {
     el.innerHTML = '';
@@ -1062,7 +1086,7 @@ function actRow(pid, act, val, unit, btns) {
 }
 
 function b(lbl, pid, act, d, extra='') {
-  if (!CURRENT_USER) return `<span class="btn btn-m" style="opacity:0.3;cursor:default" title="Logga in för att registrera">${lbl}</span>`;
+  if (!isLoggedIn()) return `<span class="btn btn-m" style="opacity:0.3;cursor:default" title="Logga in för att registrera">${lbl}</span>`;
   const pp=d>0?'btn-p':'btn-m';
   return `<button class="btn ${pp} ${extra}" onclick="upd('${pid}','${act}',${d})" style="${d>0?'--pc:'+PM[pid].color:''}">${lbl}</button>`;
 }
@@ -1100,7 +1124,7 @@ function tUtfor() {
 }
 
 function tMat() {
-  if (!CURRENT_USER) {
+  if (!isLoggedIn()) {
     const loginNote = `<div class="note" style="margin-bottom:14px">🔒 Logga in för att registrera maträtter</div>`;
     const matScores=`<div class="mat-scores">${PIDS.map(pid=>{
       const m=PM[pid], p=S.players[pid], rk=rankFor('mat');
@@ -1152,7 +1176,7 @@ function selDP(pid){ DP=pid; document.getElementById('tab-mat').innerHTML=tMat()
 function selDR(r){   DR=r;   document.getElementById('tab-mat').innerHTML=tMat(); }
 
 function submitDish() {
-  if (!CURRENT_USER) { toast('Logga in först!'); return; }
+  if (!isLoggedIn()) { toast('Logga in först!'); return; }
   if(!DP||!DR) return;
   const inp=document.getElementById('dish-inp');
   const name=(inp?inp.value.trim():'')||'Namnlös rätt';
@@ -1210,7 +1234,7 @@ function tFakta() {
   const flog = S.fakta_log || [];
 
   // Guard: not logged in
-  if (!CURRENT_USER) {
+  if (!isLoggedIn()) {
     const loginNote = `<div class="note" style="margin-bottom:14px">🔒 Logga in för att registrera fakta</div>`;
     const rows = PIDS.map(pid=>{
       const p=S.players[pid];
@@ -1263,7 +1287,7 @@ function selFP(pid) {
 }
 
 function submitFakta() {
-  if (!CURRENT_USER) { toast('Logga in först!'); return; }
+  if (!isLoggedIn()) { toast('Logga in först!'); return; }
   const inp = document.getElementById('fakta-inp');
   const text = inp ? inp.value.trim() : '';
   if (!FP || !text) return;
@@ -1617,8 +1641,9 @@ window.submitVote    = submitVote;
 window.dismissBanner = dismissBanner;
 window.selFP         = selFP;
 window.submitFakta   = submitFakta;
-window.doLogin       = doLogin;
-window.doLogout      = doLogout;
+window.doLogin          = doLogin;
+window.doLogout         = doLogout;
+window.continueAsGuest  = continueAsGuest;
 
 function dismissBanner() {
   const el = document.getElementById('feature-banner');
@@ -1659,11 +1684,21 @@ function dismissBanner() {
 
 (function() {
   try {
+    // Återställ inloggning från localStorage
     const saved = localStorage.getItem('m2026_user');
     if (saved && ['Mange','Flevy','Andy','Habbe'].includes(saved)) {
       CURRENT_USER = saved;
       const overlay = document.getElementById('login-overlay');
       if (overlay) overlay.classList.add('hidden');
+      updateLoginBadge();
+      return;
+    }
+    // Återställ gästläge från sessionStorage (gäller bara denna session)
+    if (sessionStorage.getItem('m2026_guest')) {
+      CURRENT_USER = '__guest__';
+      const overlay = document.getElementById('login-overlay');
+      if (overlay) overlay.classList.add('hidden');
+      updateLoginBadge();
     }
   } catch(e) {}
 })();
