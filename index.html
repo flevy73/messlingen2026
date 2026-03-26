@@ -506,6 +506,26 @@
     .btn-reset { background: var(--surface); border: 1px solid #ef4444; color: #ef4444; }
     .btn-reset.armed { background: #ef4444; color: white; }
 
+    /* NYA FEATURES */
+    #changelog { margin-bottom: 8px; }
+    .cl-toggle {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 10px 14px; border-radius: var(--r); font-size: 0.82rem;
+      font-weight: 700; cursor: pointer; display: flex; justify-content: space-between;
+      align-items: center; -webkit-tap-highlight-color: transparent; text-align: left;
+    }
+    .cl-toggle:active { opacity: 0.8; }
+    .cl-arrow { transition: transform 0.2s; font-style: normal; }
+    .cl-body { display: none; background: var(--surface); border: 1px solid var(--border);
+      border-top: none; border-radius: 0 0 var(--r) var(--r); padding: 10px 14px; }
+    .cl-body.open { display: block; }
+    .cl-version { margin-bottom: 10px; }
+    .cl-ver-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em;
+      color: var(--gold); text-transform: uppercase; margin-bottom: 4px; }
+    .cl-items { list-style: none; padding: 0; }
+    .cl-items li { font-size: 0.8rem; color: var(--muted); padding: 2px 0; line-height: 1.4; }
+    .cl-items li::before { content: '→ '; color: var(--accent); }
+
     /* VOTE FORM */
     .vote-form { background: var(--surface); border-radius: var(--r); border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; }
     .vote-form h3 { font-size: 0.85rem; color: var(--muted); font-weight: 600; margin-bottom: 11px; }
@@ -650,12 +670,132 @@
   <div class="sec-title">📜 Aktivitetslogg</div>
   <div id="log"></div>
 
+  <!-- CHANGELOG -->
+  <div class="sec-title">🆕 Nya Features</div>
+  <div id="changelog">
+    <button class="cl-toggle" onclick="toggleChangelog()" id="cl-btn">
+      <span>Visa versionshistorik</span>
+      <em class="cl-arrow" id="cl-arrow">▼</em>
+    </button>
+    <div class="cl-body" id="cl-body">
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.12 — Ta bort maträtt &amp; städning</div>
+        <ul class="cl-items">
+          <li>Möjlighet att ta bort inlagd maträtt per person (🗑️-knapp i matlistan)</li>
+          <li>Nollställ allt borttagen (var för farlig att ha kvar)</li>
+          <li>Visar upp till 20 maträtter i historiken (tidigare 12)</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.11 — Besöksräknare</div>
+        <ul class="cl-items">
+          <li>Antal sidladdningar visas i sidfoten ("👁️ X besök")</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.10 — Bonus: Städkärring &amp; Hjälpreda</div>
+        <ul class="cl-items">
+          <li>Ny bonusaktivitet: Städkärring (🧹) — 2 poäng per insats</li>
+          <li>Ny bonusaktivitet: Dagens Hjälpreda (🤝) — 2 poäng per insats</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.9 — Skidkrascher</div>
+        <ul class="cl-items">
+          <li>Ny bonusaktivitet: Skidkrascher (💥) — 2 poäng per krasch</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.8 — Öl &amp; Vin-kategori</div>
+        <ul class="cl-items">
+          <li>Vin (🍷) har fått egen underkategori under Öl &amp; Vin</li>
+          <li>Separata räknare för öl och vin</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.7 — Gäst-läge</div>
+        <ul class="cl-items">
+          <li>Åskådare kan nu besöka sidan utan att logga in</li>
+          <li>Gäster kan se allt och rösta på vinnaren</li>
+          <li>"Fortsätt som åskådare 👀"-knapp på inloggningsskärmen</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.6 — Achievements &amp; tickers</div>
+        <ul class="cl-items">
+          <li>Achievements-system med 15+ prestationer att låsa upp</li>
+          <li>Dubbla scrollande nyhetsbanderoller (topp &amp; botten)</li>
+          <li>50+ personliga hälsningar/förolämpningar per person</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.5 — Fakta-kategorin</div>
+        <ul class="cl-items">
+          <li>Registrera fakta som gruppen godkänner (3 poäng)</li>
+          <li>Faktalogg med alla godkända fakta</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.4 — Vinnartips &amp; röstning</div>
+        <ul class="cl-items">
+          <li>Alla (inkl. gäster) kan tippa vem de tror vinner helgen</li>
+          <li>Röstresultaten visas i realtid</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.3 — Mat-kategorin</div>
+        <ul class="cl-items">
+          <li>Registrera maträtter med namn och betyg (1–5 ⭐)</li>
+          <li>Poäng = summa av stjärnbetyg</li>
+          <li>Mathistorik för hela helgen</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.2 — Bonus-aktiviteter</div>
+        <ul class="cl-items">
+          <li>Bastu, kortspelsvinster, snöbollskrig, klagomål</li>
+          <li>Poängsystem för bonusaktiviteter</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.1 — Delad databas</div>
+        <ul class="cl-items">
+          <li>Supabase-integration — alla delar samma data i realtid</li>
+          <li>Automatisk synkronisering var 5:e sekund</li>
+          <li>Hosting via GitHub Pages</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <div class="cl-ver-label">v1.0 — Grundapp</div>
+        <ul class="cl-items">
+          <li>Längdskidåkning (km), utförskidåkning, öl</li>
+          <li>Fyra karaktärer: Mange, Flevy, Andy, Habbe</li>
+          <li>Poängtabell &amp; aktivitetslogg</li>
+          <li>Mobiloptimerad design med snöflingor</li>
+        </ul>
+      </div>
+
+    </div><!-- /cl-body -->
+  </div><!-- /changelog -->
+
 </div>
 
 <!-- FOOTER -->
 <div id="footer">
   <button class="btn-act btn-share" id="share-btn">📤 Dela ställning</button>
-  <button class="btn-act btn-reset" id="reset-btn">🗑️ Nollställ allt</button>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -1169,7 +1309,7 @@ function tMat() {
     }).join('')}</div>`;
     const dishHist = S.dishes.length>0 ? `<div class="dish-list">
       <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:7px">📋 Rätter som lagats:</div>
-      ${S.dishes.slice(0,12).map(d=>{
+      ${S.dishes.slice(0,20).map(d=>{
         const m=PM[d.pid];
         return `<div class="dish-item"><span>${m.emo}</span><span style="flex:1"><strong style="color:${m.color}">${m.name}</strong>: ${esc(d.name||'Namnlös rätt')}</span><span style="color:var(--gold)">${'⭐'.repeat(d.rating)}</span><span class="log-time">${fmt(d.ts)}</span></div>`;
       }).join('')}
@@ -1192,9 +1332,16 @@ function tMat() {
 
   const dishHist = S.dishes.length>0 ? `<div class="dish-list">
     <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:7px">📋 Rätter som lagats:</div>
-    ${S.dishes.slice(0,12).map(d=>{
+    ${S.dishes.slice(0,20).map(d=>{
       const m=PM[d.pid];
-      return `<div class="dish-item"><span>${m.emo}</span><span style="flex:1"><strong style="color:${m.color}">${m.name}</strong>: ${esc(d.name||'Namnlös rätt')}</span><span style="color:var(--gold)">${'⭐'.repeat(d.rating)}</span><span class="log-time">${fmt(d.ts)}</span></div>`;
+      const safeTs = esc(d.ts);
+      return `<div class="dish-item">
+        <span>${m.emo}</span>
+        <span style="flex:1"><strong style="color:${m.color}">${m.name}</strong>: ${esc(d.name||'Namnlös rätt')}</span>
+        <span style="color:var(--gold)">${'⭐'.repeat(d.rating)}</span>
+        <span class="log-time">${fmt(d.ts)}</span>
+        <button onclick="removeDish('${safeTs}')" style="background:none;border:none;color:#ef4444;font-size:1rem;cursor:pointer;padding:2px 4px;min-height:36px;min-width:32px;-webkit-tap-highlight-color:transparent" title="Ta bort rätt">🗑️</button>
+      </div>`;
     }).join('')}
   </div>` : '';
 
@@ -1689,24 +1836,16 @@ function clip(txt) {
 // RESET
 // =====================================================================
 
-var _rt=null;
-function handleReset() {
-  const btn=document.getElementById('reset-btn');
-  if(!btn.classList.contains('armed')) {
-    btn.classList.add('armed');
-    btn.textContent='⚠️ SÄKER? Tryck igen för att nollställa ALLT';
-    _rt=setTimeout(function(){
-      btn.classList.remove('armed');
-      btn.textContent='🗑️ Nollställ allt';
-    }, 4500);
-  } else {
-    clearTimeout(_rt);
-    S=blankState(); DP=null; DR=0; FP=null;
-    save(); renderAll();
-    btn.classList.remove('armed');
-    btn.textContent='🗑️ Nollställ allt';
-    toast('💨 Nollställt! Ny omgång börjar nu.');
-  }
+function removeDish(ts) {
+  if (!isLoggedIn()) { toast('Logga in först!'); return; }
+  const idx = S.dishes.findIndex(function(d){ return d.ts === ts; });
+  if (idx === -1) return;
+  const d = S.dishes[idx];
+  // Dra av matpoängen från spelaren
+  S.players[d.pid].mat = Math.max(0, S.players[d.pid].mat - d.rating);
+  S.dishes.splice(idx, 1);
+  save(); renderAll();
+  toast('🗑️ Rätt borttagen.');
 }
 
 // =====================================================================
@@ -1714,13 +1853,13 @@ function handleReset() {
 // =====================================================================
 
 document.getElementById('share-btn').addEventListener('click', exportScores);
-document.getElementById('reset-btn').addEventListener('click', handleReset);
 
 // =====================================================================
 // WINDOW SCOPE — krävs för inline onclick i dynamiskt renderad HTML
 // Utan detta funkar inte knapparna på vissa mobilbrowsers (Safari/WebView)
 // =====================================================================
 window.upd           = upd;
+window.removeDish    = removeDish;
 window.selDP         = selDP;
 window.selDR         = selDR;
 window.submitDish    = submitDish;
@@ -1731,6 +1870,17 @@ window.submitFakta   = submitFakta;
 window.doLogin          = doLogin;
 window.doLogout         = doLogout;
 window.continueAsGuest  = continueAsGuest;
+window.toggleChangelog  = toggleChangelog;
+
+function toggleChangelog() {
+  const body  = document.getElementById('cl-body');
+  const arrow = document.getElementById('cl-arrow');
+  const btn   = document.getElementById('cl-btn');
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : '';
+  if (btn)   btn.querySelector('span').textContent = open ? 'Dölj versionshistorik' : 'Visa versionshistorik';
+}
 
 function dismissBanner() {
   const el = document.getElementById('feature-banner');
