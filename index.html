@@ -37,7 +37,7 @@
       min-height: 100vh;
       overflow-x: hidden;
       /* space for bottom nav + ticker + safe area */
-      padding-bottom: calc(56px + 38px + env(safe-area-inset-bottom));
+      padding-bottom: calc(56px + 44px + env(safe-area-inset-bottom));
     }
 
     /* SNOWFLAKES */
@@ -85,7 +85,7 @@
       text-align: center;
       position: relative;
       z-index: 1;
-      margin-top: 30px;
+      margin-top: 40px;
     }
 
     header h1 {
@@ -237,7 +237,7 @@
     /* BOTTOM NAV */
     .bottom-nav {
       position: fixed;
-      bottom: calc(38px + env(safe-area-inset-bottom)); /* sit above ticker */
+      bottom: calc(44px + env(safe-area-inset-bottom)); /* sit above ticker */
       left: 0; right: 0;
       background: var(--surface);
       border-top: 1px solid var(--border);
@@ -444,10 +444,10 @@
       border-top: 1px solid var(--border);
       padding: 8px 16px;
       padding-bottom: calc(8px + env(safe-area-inset-bottom));
-      font-size: 0.72rem; color: var(--accent);
+      font-size: 0.936rem; color: var(--accent);
       z-index: 150; /* below bottom-nav (200) */
       overflow: hidden; white-space: nowrap;
-      height: calc(38px + env(safe-area-inset-bottom));
+      height: calc(44px + env(safe-area-inset-bottom));
       display: flex; align-items: center;
     }
     #ticker-txt { display: inline-block; animation: scroll 22s linear infinite; }
@@ -463,10 +463,10 @@
       background: linear-gradient(90deg, #1E293B, #0F172A);
       border-bottom: 1px solid var(--border);
       padding: 0 16px;
-      font-size: 0.7rem; color: #F59E0B;
+      font-size: 0.91rem; color: #F59E0B;
       z-index: 300;
       overflow: hidden; white-space: nowrap;
-      height: 30px;
+      height: 40px;
       display: flex; align-items: center;
     }
     #top-ticker-txt { display: inline-block; animation: scrollFast 13s linear infinite; }
@@ -518,6 +518,28 @@
     .vote-bar-fill { height: 100%; background: var(--pc); border-radius: 4px; transition: width 0.4s; }
     .vote-voters { font-size: 0.68rem; color: var(--muted); margin-top: 4px; }
 
+    /* LOGIN OVERLAY */
+    #login-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(15,23,42,0.97);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    #login-overlay.hidden { display: none; }
+    #login-box {
+      width: 100%; max-width: 360px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .login-logo { font-size: 3rem; margin-bottom: 8px; }
+    #login-box h2 { font-size: 1.4rem; font-weight: 900; color: var(--accent); margin-bottom: 6px; }
+    .login-sub { color: var(--muted); font-size: 0.82rem; margin-bottom: 20px; }
+    .login-error { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #f87171; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; margin-bottom: 10px; }
+    .login-note { color: var(--muted); font-size: 0.72rem; margin-top: 12px; line-height: 1.5; }
+
     /* RESPONSIVE */
     @media (min-width: 560px) {
       #chars-row { display: grid; grid-template-columns: repeat(2, 1fr); overflow-x: visible; }
@@ -535,6 +557,26 @@
 </head>
 <body>
 
+<!-- LOGIN OVERLAY — first child of body -->
+<div id="login-overlay">
+  <div id="login-box">
+    <div class="login-logo">⛷️</div>
+    <h2>Messlingen 2026</h2>
+    <p class="login-sub">Logga in för att registrera aktiviteter</p>
+    <select id="login-name-sel" class="vote-select">
+      <option value="">— Välj ditt namn —</option>
+      <option value="Mange">🤒 Mange</option>
+      <option value="Flevy">🤖 Flevy</option>
+      <option value="Andy">🚴 Andy</option>
+      <option value="Habbe">⚽ Habbe</option>
+    </select>
+    <input id="login-pw-inp" class="vote-inp" type="password" placeholder="Lösenord" autocomplete="current-password">
+    <div id="login-error" style="display:none" class="login-error">Fel lösenord. Tips: lösenordet är ditt namn.</div>
+    <button id="login-btn" class="vote-btn" onclick="doLogin()">Logga in</button>
+    <p class="login-note">💡 Lösenord = ditt namn · 🗳️ Rösta utan inloggning: scrolla ner</p>
+  </div>
+</div>
+
 <div id="top-ticker"><span id="top-ticker-txt">🔥 BREAKING: Fyra medelålders män tror fortfarande att de är i 30-årsåldern. Messlingen håller tyst.</span></div>
 
 <div id="snow" aria-hidden="true"></div>
@@ -547,6 +589,7 @@
     <span id="sync-status">Ansluter...</span>
   </div>
   <div class="updated" id="updated">📍 Messlingen, Härjedalen</div>
+  <div class="updated" id="login-badge"></div>
 </header>
 
 <div class="wrap">
@@ -633,6 +676,52 @@ const SB_KEY    = 'sb_publishable__4Mms9qcIYVOMss3Uhi9lQ_TgY_1wtz';
 const READY     = SB_URL !== 'DIN_SUPABASE_URL';
 
 // =====================================================================
+// LOGIN
+// =====================================================================
+
+let CURRENT_USER = null;
+
+function doLogin() {
+  const nameEl = document.getElementById('login-name-sel');
+  const pwEl = document.getElementById('login-pw-inp');
+  const errEl = document.getElementById('login-error');
+  const name = nameEl ? nameEl.value : '';
+  const pw = pwEl ? pwEl.value.trim() : '';
+  if (!name) { if(errEl) { errEl.textContent='Välj ditt namn!'; errEl.style.display='block'; } return; }
+  if (pw.toLowerCase() !== name.toLowerCase()) {
+    if(errEl) { errEl.textContent='Fel lösenord. Tips: lösenordet är ditt namn.'; errEl.style.display='block'; }
+    return;
+  }
+  CURRENT_USER = name;
+  try { localStorage.setItem('m2026_user', name); } catch(e){}
+  const overlay = document.getElementById('login-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  updateLoginBadge();
+  renderAll();
+}
+
+function doLogout() {
+  CURRENT_USER = null;
+  try { localStorage.removeItem('m2026_user'); } catch(e){}
+  const overlay = document.getElementById('login-overlay');
+  if (overlay) overlay.classList.remove('hidden');
+  const pw = document.getElementById('login-pw-inp');
+  if (pw) pw.value = '';
+  const err = document.getElementById('login-error');
+  if (err) err.style.display = 'none';
+}
+
+function updateLoginBadge() {
+  const el = document.getElementById('login-badge');
+  if (!el) return;
+  if (CURRENT_USER) {
+    el.innerHTML = `<span style="color:var(--accent)">👤 ${esc(CURRENT_USER)}</span> <button onclick="doLogout()" style="background:none;border:none;color:var(--muted);font-size:0.7rem;cursor:pointer;padding:2px 6px;border-radius:4px;margin-left:4px">Byt</button>`;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+// =====================================================================
 // KONSTANTER & METADATA
 // =====================================================================
 
@@ -653,7 +742,7 @@ function blankPlayer() {
 }
 function blankState() {
   return { players:{ mange:blankPlayer(), flevy:blankPlayer(), andy:blankPlayer(), habbe:blankPlayer() },
-           achs:{}, dishes:[], log:[], votes:[], ts:null };
+           achs:{}, dishes:[], log:[], votes:[], fakta_log:[], ts:null };
 }
 
 function mergeState(d) {
@@ -663,11 +752,12 @@ function mergeState(d) {
       if (d.players[pid]) b.players[pid] = { ...blankPlayer(), ...d.players[pid] };
     }
   }
-  b.achs   = d.achs   || {};
-  b.dishes = Array.isArray(d.dishes) ? d.dishes : [];
-  b.log    = Array.isArray(d.log)    ? d.log    : [];
-  b.votes  = Array.isArray(d.votes)  ? d.votes  : [];
-  b.ts     = d.ts     || null;
+  b.achs      = d.achs      || {};
+  b.dishes    = Array.isArray(d.dishes)    ? d.dishes    : [];
+  b.log       = Array.isArray(d.log)       ? d.log       : [];
+  b.votes     = Array.isArray(d.votes)     ? d.votes     : [];
+  b.fakta_log = Array.isArray(d.fakta_log) ? d.fakta_log : [];
+  b.ts        = d.ts        || null;
   return b;
 }
 
@@ -675,6 +765,7 @@ let S = blankState();
 let _st = null;        // save debounce timer
 let _saving = false;   // true while a save is in-flight → block polling overwrite
 let DP = null, DR = 0; // mat tab transient state
+let FP = null;         // fakta tab transient state
 
 // =====================================================================
 // SYNC STATUS
@@ -971,6 +1062,7 @@ function actRow(pid, act, val, unit, btns) {
 }
 
 function b(lbl, pid, act, d, extra='') {
+  if (!CURRENT_USER) return `<span class="btn btn-m" style="opacity:0.3;cursor:default" title="Logga in för att registrera">${lbl}</span>`;
   const pp=d>0?'btn-p':'btn-m';
   return `<button class="btn ${pp} ${extra}" onclick="upd('${pid}','${act}',${d})" style="${d>0?'--pc:'+PM[pid].color:''}">${lbl}</button>`;
 }
@@ -1008,6 +1100,22 @@ function tUtfor() {
 }
 
 function tMat() {
+  if (!CURRENT_USER) {
+    const loginNote = `<div class="note" style="margin-bottom:14px">🔒 Logga in för att registrera maträtter</div>`;
+    const matScores=`<div class="mat-scores">${PIDS.map(pid=>{
+      const m=PM[pid], p=S.players[pid], rk=rankFor('mat');
+      return `<div class="mat-score-row" style="--pc:${m.color}"><span class="emo">${m.emo}</span><span class="name">${m.name}</span><span class="pts">${p.mat}<span style="font-size:0.65rem;color:var(--muted);margin-left:2px">p</span></span><span class="rank">${rankEmo(rk[pid])}</span></div>`;
+    }).join('')}</div>`;
+    const dishHist = S.dishes.length>0 ? `<div class="dish-list">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:7px">📋 Rätter som lagats:</div>
+      ${S.dishes.slice(0,12).map(d=>{
+        const m=PM[d.pid];
+        return `<div class="dish-item"><span>${m.emo}</span><span style="flex:1"><strong style="color:${m.color}">${m.name}</strong>: ${esc(d.name||'Namnlös rätt')}</span><span style="color:var(--gold)">${'⭐'.repeat(d.rating)}</span><span class="log-time">${fmt(d.ts)}</span></div>`;
+      }).join('')}
+    </div>` : '';
+    return loginNote + matScores + dishHist;
+  }
+
   const ppbtns = PIDS.map(pid=>{
     const m=PM[pid], sel=DP===pid;
     return `<button class="ppick${sel?' on':''}" style="--pc:${m.color}" onclick="selDP('${pid}')"><span class="pe">${m.emo}</span>${m.name}</button>`;
@@ -1044,6 +1152,7 @@ function selDP(pid){ DP=pid; document.getElementById('tab-mat').innerHTML=tMat()
 function selDR(r){   DR=r;   document.getElementById('tab-mat').innerHTML=tMat(); }
 
 function submitDish() {
+  if (!CURRENT_USER) { toast('Logga in först!'); return; }
   if(!DP||!DR) return;
   const inp=document.getElementById('dish-inp');
   const name=(inp?inp.value.trim():'')||'Namnlös rätt';
@@ -1098,14 +1207,74 @@ function faktaQuip(pid) {
 }
 
 function tFakta() {
-  const note = 'Fakta som gruppen accepterat utan att kunna googla. Varje faktapåstående = 3 poäng. Exempel: "En fjäril flyger 200 km/h." Habbe nickade.';
-  return `<div class="note" style="margin-bottom:12px;margin-top:0">${note}</div>` +
-    PIDS.map(pid=>{
+  const flog = S.fakta_log || [];
+
+  // Guard: not logged in
+  if (!CURRENT_USER) {
+    const loginNote = `<div class="note" style="margin-bottom:14px">🔒 Logga in för att registrera fakta</div>`;
+    const rows = PIDS.map(pid=>{
       const p=S.players[pid];
-      const quipTxt = faktaQuip(pid);
-      return actRow(pid,'fakta',p.fakta,'fakta', b('+1',pid,'fakta',1)+b('−1',pid,'fakta',-1)) +
-        `<div class="note" style="margin-top:-4px;margin-bottom:12px;font-style:italic;font-size:0.72rem">${esc(quipTxt)}</div>`;
+      return actRow(pid,'fakta',p.fakta,'fakta', b('−1',pid,'fakta',-1));
     }).join('');
+    const logHtml = flog.length>0 ? `<div class="dish-list" style="margin-top:14px">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:7px">💡 Registrerade fakta:</div>
+      ${flog.slice(0,20).map(entry=>{
+        const m=PM[entry.pid];
+        return `<div class="dish-item"><span>${m.emo}</span><span style="flex:1"><strong style="color:${m.color}">${m.name}</strong>: ${esc(entry.text)}</span><span class="log-time">${fmt(entry.ts)}</span></div>`;
+      }).join('')}
+    </div>` : '';
+    return loginNote + rows + logHtml;
+  }
+
+  // Form
+  const ppbtns = PIDS.map(pid=>{
+    const m=PM[pid], sel=FP===pid;
+    return `<button class="ppick${sel?' on':''}" style="--pc:${m.color}" onclick="selFP('${pid}')"><span class="pe">${m.emo}</span>${m.name}</button>`;
+  }).join('');
+
+  const canSub = FP ? true : false; // full check happens with oninput
+
+  const form = `<div class="mat-form">
+    <h3>💡 Registrera ett faktapåstående</h3>
+    <div class="player-grid">${ppbtns}</div>
+    <input class="dish-inp" id="fakta-inp" type="text" placeholder="Skriv påståendet här... (obligatoriskt)" maxlength="200" oninput="document.getElementById('fakta-submit-btn').disabled=!(${FP?`'${FP}'`:'null'}&&this.value.trim())">
+    <button class="btn-submit" id="fakta-submit-btn" disabled onclick="submitFakta()">Registrera fakta</button>
+  </div>`;
+
+  const rows = PIDS.map(pid=>{
+    const p=S.players[pid];
+    return actRow(pid,'fakta',p.fakta,'fakta', b('−1',pid,'fakta',-1));
+  }).join('');
+
+  const logHtml = flog.length>0 ? `<div class="dish-list" style="margin-top:14px">
+    <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:7px">💡 Registrerade fakta:</div>
+    ${flog.slice(0,20).map(entry=>{
+      const m=PM[entry.pid];
+      return `<div class="dish-item"><span>${m.emo}</span><span style="flex:1"><strong style="color:${m.color}">${m.name}</strong>: ${esc(entry.text)}</span><span class="log-time">${fmt(entry.ts)}</span></div>`;
+    }).join('')}
+  </div>` : '';
+
+  return form + rows + logHtml;
+}
+
+function selFP(pid) {
+  FP = pid;
+  document.getElementById('tab-fakta').innerHTML = tFakta();
+}
+
+function submitFakta() {
+  if (!CURRENT_USER) { toast('Logga in först!'); return; }
+  const inp = document.getElementById('fakta-inp');
+  const text = inp ? inp.value.trim() : '';
+  if (!FP || !text) return;
+  const pid = FP;
+  FP = null;
+  S.fakta_log = S.fakta_log || [];
+  S.fakta_log.unshift({ pid, text, ts: new Date().toISOString() });
+  if (S.fakta_log.length > 50) S.fakta_log = S.fakta_log.slice(0, 50);
+  upd(pid, 'fakta', 1);
+  toast(`💡 Fakta registrerad! +3p till ${PM[pid].name}`);
+  // upd already calls save+renderAll
 }
 
 function renderTabs() {
@@ -1251,6 +1420,7 @@ function renderAll() {
   renderAchs();
   renderLog();
   rotateTopTicker();
+  updateLoginBadge();
   const el=document.getElementById('updated');
   el.textContent = S.ts ? 'Senast uppdaterad: '+fmt(S.ts) : '📍 Messlingen, Härjedalen';
 }
@@ -1266,6 +1436,7 @@ document.getElementById('tab-nav').addEventListener('click', function(e) {
   document.querySelectorAll('.tb').forEach(function(b){ b.classList.toggle('on', b.dataset.tab===tab); });
   document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.toggle('on', p.id==='tab-'+tab); });
   if (tab==='mat') document.getElementById('tab-mat').innerHTML = tMat();
+  if (tab==='fakta') document.getElementById('tab-fakta').innerHTML = tFakta();
   // scroll to activity section when switching tabs
   var actTitle = document.getElementById('activities-title');
   if (actTitle) actTitle.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1419,7 +1590,7 @@ function handleReset() {
     }, 4500);
   } else {
     clearTimeout(_rt);
-    S=blankState(); DP=null; DR=0;
+    S=blankState(); DP=null; DR=0; FP=null;
     save(); renderAll();
     btn.classList.remove('armed');
     btn.textContent='🗑️ Nollställ allt';
@@ -1444,6 +1615,10 @@ window.selDR         = selDR;
 window.submitDish    = submitDish;
 window.submitVote    = submitVote;
 window.dismissBanner = dismissBanner;
+window.selFP         = selFP;
+window.submitFakta   = submitFakta;
+window.doLogin       = doLogin;
+window.doLogout      = doLogout;
 
 function dismissBanner() {
   const el = document.getElementById('feature-banner');
@@ -1479,8 +1654,24 @@ function dismissBanner() {
 })();
 
 // =====================================================================
-// INIT — Firebase eller localStorage
+// AUTO-LOGIN from localStorage
 // =====================================================================
+
+(function() {
+  try {
+    const saved = localStorage.getItem('m2026_user');
+    if (saved && ['Mange','Flevy','Andy','Habbe'].includes(saved)) {
+      CURRENT_USER = saved;
+      const overlay = document.getElementById('login-overlay');
+      if (overlay) overlay.classList.add('hidden');
+    }
+  } catch(e) {}
+})();
+
+// Enter key on login password field
+document.getElementById('login-pw-inp').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
 
 // =====================================================================
 // INIT — hämta data från Supabase, starta polling
