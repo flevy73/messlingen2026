@@ -763,11 +763,11 @@ const PIDS = ['mange','flevy','andy','habbe'];
 // =====================================================================
 
 function blankPlayer() {
-  return { langd:0, ol:0, utfor:0, mat:0, bastu:0, kortspel:0, snoboll:0, klagan:0, fakta:0, vin:0, krasch:0 };
+  return { langd:0, ol:0, utfor:0, mat:0, bastu:0, kortspel:0, snoboll:0, klagan:0, fakta:0, vin:0, krasch:0, stadkarring:0, hjalpreda:0 };
 }
 function blankState() {
   return { players:{ mange:blankPlayer(), flevy:blankPlayer(), andy:blankPlayer(), habbe:blankPlayer() },
-           achs:{}, dishes:[], log:[], votes:[], fakta_log:[], ts:null };
+           achs:{}, dishes:[], log:[], votes:[], fakta_log:[], visits:0, ts:null };
 }
 
 function mergeState(d) {
@@ -782,6 +782,7 @@ function mergeState(d) {
   b.log       = Array.isArray(d.log)       ? d.log       : [];
   b.votes     = Array.isArray(d.votes)     ? d.votes     : [];
   b.fakta_log = Array.isArray(d.fakta_log) ? d.fakta_log : [];
+  b.visits    = typeof d.visits === 'number' ? d.visits : 0;
   b.ts        = d.ts        || null;
   return b;
 }
@@ -860,7 +861,7 @@ function save() {
 // =====================================================================
 
 function score(p) {
-  return p.langd*2 + p.ol*1 + p.utfor*3 + p.mat*4 + p.bastu*1 + p.kortspel*2 + p.snoboll*1 + p.fakta*3 + p.vin*1 + p.krasch*2;
+  return p.langd*2 + p.ol*1 + p.utfor*3 + p.mat*4 + p.bastu*1 + p.kortspel*2 + p.snoboll*1 + p.fakta*3 + p.vin*1 + p.krasch*2 + p.stadkarring*2 + p.hjalpreda*2;
 }
 
 function ranked() {
@@ -930,28 +931,36 @@ const LQ = {
           mat:  ['"I Skåne gör vi det annorlunda."','Kulinarisk Skåning!','Mange lagar mat!'],
           klagan:['Mange klagar igen...','En ny dag, ett nytt klagomål.','Tungan? Knäna? Ryggen?'],
           fakta:['Mange hävdar. Gruppen nickar.','Obevisbart men övertygande!','Skånsk sanning!'],
-          krasch:['"I Skåne hade det inte hänt."','Tungan klarade sig. Skidorna inte.','Bakhalt + krasch = komplett Mange-paket!'] },
+          krasch:['"I Skåne hade det inte hänt."','Tungan klarade sig. Skidorna inte.','Bakhalt + krasch = komplett Mange-paket!'],
+          stadkarring:['"Jag städar för att det är mitt hem."','Mange sveper. Ingen bad om det.','Skånsk ordning: oväntat men uppskattat.'],
+          hjalpreda:['"I Skåne hjälper man varandra."','Mange till undsättning!','Tungans vila — hjälpens stund.'] },
   flevy:{ langd:['Claude-optimerad teknik!','AI förutspådde detta!','Paddelmuskler fungerar!'],
           ol:   ['Claude ser och dömer.','Temporärt Claude-uppehåll!','"Jag frågade Claude..."'],
           utfor:['Padel-instinkterna sparkar in!','"Claude sa att det var säkert."','Flevy rusar utför!'],
           mat:  ['"Claude gav receptet."','AI-inspirerad matlagning!','Flevy lagar mat!'],
           kortspel:['Flevy vinner! Claude förutspådde det.','Strategisk seger!'],
           fakta:['Claude som källa. Gruppen accepterar.','AI-fakta passerar!','Obevisbart men korrekt?'],
-          krasch:['Flevy frågade Claude om krasch-tekniken EFTER kraschen.','Claude förutspådde inte detta. Eller kanske det.','"Suboptimalt utfall" — Flevy, via Claude.'] },
+          krasch:['Flevy frågade Claude om krasch-tekniken EFTER kraschen.','Claude förutspådde inte detta. Eller kanske det.','"Suboptimalt utfall" — Flevy, via Claude.'],
+          stadkarring:['Flevy städar AI-optimerat. Claude gav städplanen.','Rent och effektivt. Claude-godkänt.','Flevy sveper. Frågar Claude om rätt teknik.'],
+          hjalpreda:['"Claude sa att hjälpsamhet ökar gruppkohesion."','Flevy hjälper. Strategiskt.','AI-driven altruism.'] },
   andy: { langd:['"Det är typ som att cykla!"','Andy rullar på!','Cykelinstinkterna hjälper!'],
           ol:   ['Kalorier kalkyleras...','Andy kopplar av!','"Bara en cykelkrog-öl."'],
           utfor:['"Vart är pedalerna?!"','Andy conquers!','Utan cykel men med stil!'],
           mat:  ['"Carb-loading, men för skidor."','Andy lagar mat!','Välnärd cyklist!'],
           kortspel:['Andy vinner med cykelstrategi!','Datastyrd seger!'],
           fakta:['Andy hävdar. Tekniskt möjligt.','Cykelfysik appliceras på skidor!','Obevisbart men coolt.'],
-          krasch:['"På cykeln hade det inte hänt."','Andy analyserar kraschen aerodynamiskt.','Krasch noterad. Cykeln saknades.'] },
+          krasch:['"På cykeln hade det inte hänt."','Andy analyserar kraschen aerodynamiskt.','Krasch noterad. Cykeln saknades.'],
+          stadkarring:['"Cyklister är också ordentliga."','Andy städar systematiskt. Som en triatlon.','Rent spår — rent stuga.'],
+          hjalpreda:['"På cykelturer hjälper man alltid."','Andy till hands! Utan cykel men med vilja.','Dagens hjälte. Cykeln saknas fortfarande.'] },
   habbe:{ langd:['HV71-kondis testas!','Kalmar-andan driver!','Habbe kämpar!'],
           ol:   ['Kalmar FF-sorg medicineras.','HV71-minnen dränks.','"Skål för Kalmar!"'],
           utfor:['Habbe rusar utför!','Som en Kalmar-forward!','Habbe i full fart!'],
           mat:  ['Småländskt recept (billigast)!','"I Kalmar äter vi annorlunda."','Habbe lagar mat!'],
           kortspel:['Habbe vinner! Kalmar FF-lycka!','HV71-strategi funkar!'],
           fakta:['Habbe vet exakt varför. Ingen kollar.','Kalmar-statistik: obevisbar.','Gruppen nickar.'],
-          krasch:['Som Kalmar FF:s försvar — kollapsade utan förvarning.','HV71 tackar för underhållningen.','Habbe kraschar med Småländsk sparsamhet. Allt gick sönder.'] }
+          krasch:['Som Kalmar FF:s försvar — kollapsade utan förvarning.','HV71 tackar för underhållningen.','Habbe kraschar med Småländsk sparsamhet. Allt gick sönder.'],
+          stadkarring:['"I Småland städar man ordentligt, kostar inget extra."','Habbe sveper. Billigaste städmetoden.','Kalmar-rent!'],
+          hjalpreda:['"Habbe hjälper. Noterar allt han gör."','Småländsk hjälpsamhet: räknas noga.','HV71-laget hjälper alltid varandra. Habbe likaså.'] }
 };
 
 function lq(pid, act) {
@@ -991,7 +1000,13 @@ const ACHS = [
   { id:'krasch3',       emo:'💥💥💥', name:'Kraschkungen',       desc:'3+ krascher. Imponerande fel-val.',
     check:(s,p)=>s.players[p].krasch>=3 },
   { id:'krasch_mange',  emo:'🤒💥', name:'Skånsk Kraschare',    desc:'Mange: krasch + bakhalt samma dag',
-    check:(s,p)=>p==='mange'&&s.players[p].krasch>=1&&s.players[p].klagan>=1 }
+    check:(s,p)=>p==='mange'&&s.players[p].krasch>=1&&s.players[p].klagan>=1 },
+  { id:'stadkarring',   emo:'🧹🏆', name:'Städkärringen',        desc:'3+ städinsatser — okrönt mästare',
+    check:(s,p)=>s.players[p].stadkarring>=3 },
+  { id:'hjalpreda',     emo:'🤝🌟', name:'Årets Hjälpreda',      desc:'3+ hjälpinsatser — gruppens ryggrad',
+    check:(s,p)=>s.players[p].hjalpreda>=3 },
+  { id:'allround',      emo:'🌈',   name:'Allroundhjälte',       desc:'Städat + hjälpt + lagat mat',
+    check:(s,p)=>s.players[p].stadkarring>=1&&s.players[p].hjalpreda>=1&&s.players[p].mat>=1 }
 ];
 
 function checkAchs() {
@@ -1018,7 +1033,7 @@ function upd(pid, act, delta) {
 
   if(delta!==0) {
     const enames={langd:'⛷️ längd',ol:'🍺 öl',utfor:'🎿 utförsåk',mat:'🍳 matpoäng',
-                  bastu:'🧖 bastu',kortspel:'🃏 kortspel',snoboll:'🤍 snöboll',klagan:'😤 klagomål',fakta:'💡 fakta',vin:'🍷 vin',krasch:'💥 krasch'};
+                  bastu:'🧖 bastu',kortspel:'🃏 kortspel',snoboll:'🤍 snöboll',klagan:'😤 klagomål',fakta:'💡 fakta',vin:'🍷 vin',krasch:'💥 krasch',stadkarring:'🧹 städkärring',hjalpreda:'🤝 hjälpreda'};
     const txt = delta>0
       ? `${PM[pid].name} loggade +${Math.abs(delta)} ${enames[act]}`
       : `${PM[pid].name} korrigerade −${Math.abs(delta)} ${enames[act]}`;
@@ -1210,11 +1225,13 @@ function submitDish() {
 
 function tBonus() {
   const bacts=[
-    {k:'krasch',  lbl:'Skidkrascher',         emo:'💥', unit:'st'},
-    {k:'bastu',   lbl:'Bastuvispningar',      emo:'🧖', unit:'rnd'},
-    {k:'kortspel',lbl:'Kortspelsvinster',     emo:'🃏', unit:'v'},
-    {k:'snoboll', lbl:'Snöbollskrig-träffar', emo:'🤍', unit:'tr'},
-    {k:'klagan',  lbl:'Klagomål',             emo:'😤', unit:'gg'}
+    {k:'krasch',     lbl:'Skidkrascher',         emo:'💥', unit:'st'},
+    {k:'stadkarring',lbl:'Städkärring',           emo:'🧹', unit:'gg'},
+    {k:'hjalpreda',  lbl:'Dagens Hjälpreda',      emo:'🤝', unit:'gg'},
+    {k:'bastu',      lbl:'Bastuvispningar',       emo:'🧖', unit:'rnd'},
+    {k:'kortspel',   lbl:'Kortspelsvinster',      emo:'🃏', unit:'v'},
+    {k:'snoboll',    lbl:'Snöbollskrig-träffar',  emo:'🤍', unit:'tr'},
+    {k:'klagan',     lbl:'Klagomål',              emo:'😤', unit:'gg'}
   ];
   return bacts.map(({k,lbl,emo,unit})=>`
     <div class="bonus-hdr">${emo} ${lbl}</div>
@@ -1348,7 +1365,7 @@ function renderLB() {
         <div class="lb-emo">${m.emo}</div>
         <div class="lb-info">
           <div class="lb-name">${m.name}</div>
-          <div class="lb-detail">⛷️${p.langd}km · 🍺${p.ol} · 🍷${p.vin} · 🎿${p.utfor} · 💥${p.krasch} · 🍳${p.mat}p · 🧖${p.bastu} · 🃏${p.kortspel} · 🤍${p.snoboll} · 💡${p.fakta}</div>
+          <div class="lb-detail">⛷️${p.langd}km · 🍺${p.ol} · 🍷${p.vin} · 🎿${p.utfor} · 💥${p.krasch} · 🧹${p.stadkarring} · 🤝${p.hjalpreda} · 🍳${p.mat}p · 🧖${p.bastu} · 🃏${p.kortspel} · 🤍${p.snoboll} · 💡${p.fakta}</div>
         </div>
         <div style="text-align:right">
           <div class="lb-pts">${x.s}</div>
@@ -1356,7 +1373,7 @@ function renderLB() {
         </div>
       </div>`;
     }).join('') +
-    `<div class="note">Poängformel: Längd×2 + Öl×1 + Vin×1 + Utför×3 + Krasch×2 + Mat×4 + Bastu×1 + Kortspel×2 + Snöboll×1 + Fakta×3</div>`;
+    `<div class="note">Poängformel: Längd×2 · Öl×1 · Vin×1 · Utför×3 · Krasch×2 · Städkärring×2 · Hjälpreda×2 · Mat×4 · Bastu×1 · Kortspel×2 · Snöboll×1 · Fakta×3</div>`;
 }
 
 // =====================================================================
@@ -1470,7 +1487,9 @@ function renderAll() {
   rotateTopTicker();
   updateLoginBadge();
   const el=document.getElementById('updated');
-  el.textContent = S.ts ? 'Senast uppdaterad: '+fmt(S.ts) : '📍 Messlingen, Härjedalen';
+  const visits = S.visits || 0;
+  const visitTxt = visits > 0 ? ` · 👁️ ${visits} besök` : '';
+  el.textContent = (S.ts ? 'Senast uppdaterad: '+fmt(S.ts) : '📍 Messlingen, Härjedalen') + visitTxt;
 }
 
 // =====================================================================
@@ -1799,6 +1818,9 @@ if (READY) {
     .then(function(data) {
       S = data;
       _lastSavedTs = S.ts;
+      // Räkna sidbesök — öka med 1 och spara direkt
+      S.visits = (S.visits || 0) + 1;
+      save();
       setSyncStatus('✅ Ansluten — delar data med alla', 'ok');
       renderAll();
     })
