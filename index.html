@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0F172A">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <title>Messlingen 2026 ⛷️</title>
+  <title>Messlingen 2026 🎿</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -74,6 +74,7 @@
       text-transform: uppercase;
       color: var(--muted);
       margin: 24px 0 10px;
+      scroll-margin-top: 56px; /* clears fixed top-ticker + a little padding */
     }
 
     /* HEADER */
@@ -593,7 +594,7 @@
 <div id="snow" aria-hidden="true"></div>
 
 <header>
-  <h1>⛷️ Messlingen 2026 ⛷️</h1>
+  <h1>🎿 Messlingen 2026 🎿</h1>
   <div class="sub">Männens Vinterhelg · Härjedalen</div>
   <div class="sync-bar">
     <span class="sync-dot loading" id="sync-dot"></span>
@@ -660,7 +661,7 @@
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav" id="tab-nav" aria-label="Aktiviteter">
   <button class="tb on" data-tab="langd"><span class="nav-icon">⛷️</span>Längd</button>
-  <button class="tb" data-tab="ol"><span class="nav-icon">🍺</span>Öl</button>
+  <button class="tb" data-tab="ol"><span class="nav-icon">🍺🍷</span>Dryck</button>
   <button class="tb" data-tab="utfor"><span class="nav-icon">🎿</span>Utför</button>
   <button class="tb" data-tab="mat"><span class="nav-icon">🍳</span>Mat</button>
   <button class="tb" data-tab="bonus"><span class="nav-icon">⭐</span>Bonus</button>
@@ -1105,13 +1106,24 @@ function tLangd() {
 }
 
 function tOl() {
-  const tot=PIDS.reduce((s,p)=>s+S.players[p].ol,0);
-  let note = tot===0 ? 'Ingen öl ännu. Det löser sig snart.' : `Gruppen: ${tot} öl — ${(tot*0.5).toFixed(1)} liter. En legitim helg.`;
-  if(tot>=20) note+=' ⚠️ Medicinsk varning: I-land-problem detekterade.';
-  return PIDS.map(pid=>{
-    const p=S.players[pid];
-    return actRow(pid,'ol',p.ol,'öl', b('+1',pid,'ol',1)+b('+2',pid,'ol',2)+b('−1',pid,'ol',-1));
-  }).join('')+`<div class="note">${note}</div>`;
+  const totOl  = PIDS.reduce((s,p)=>s+S.players[p].ol,0);
+  const totVin = PIDS.reduce((s,p)=>s+S.players[p].vin,0);
+  let noteOl = totOl===0 ? 'Ingen öl ännu. Det löser sig snart.' : `Gruppen: ${totOl} öl — ${(totOl*0.5).toFixed(1)} liter. En legitim helg.`;
+  if(totOl>=20) noteOl += ' ⚠️ Medicinsk varning: I-land-problem detekterade.';
+  let noteVin = totVin===0 ? 'Inget vin ännu. Kvällen kommer.' : `Gruppen: ${totVin} glas vin. Habbe säger att det är "uppvärmning."`;
+
+  return `<div class="bonus-hdr">🍺 Öl</div>` +
+    PIDS.map(pid=>{
+      const p=S.players[pid];
+      return actRow(pid,'ol',p.ol,'öl', b('+1',pid,'ol',1)+b('+2',pid,'ol',2)+b('−1',pid,'ol',-1));
+    }).join('') +
+    `<div class="note" style="margin-bottom:16px">${noteOl}</div>` +
+    `<div class="bonus-hdr">🍷 Vin</div>` +
+    PIDS.map(pid=>{
+      const p=S.players[pid];
+      return actRow(pid,'vin',p.vin,'gl', b('+1',pid,'vin',1)+b('+2',pid,'vin',2)+b('−1',pid,'vin',-1));
+    }).join('') +
+    `<div class="note">${noteVin}</div>`;
 }
 
 function tUtfor() {
@@ -1188,11 +1200,10 @@ function submitDish() {
 
 function tBonus() {
   const bacts=[
-    {k:'vin',    lbl:'Glas vin',           emo:'🍷', unit:'gl'},
-    {k:'bastu',  lbl:'Bastuvispningar',    emo:'🧖', unit:'rnd'},
-    {k:'kortspel',lbl:'Kortspelsvinster',  emo:'🃏', unit:'v'},
-    {k:'snoboll',lbl:'Snöbollskrig-träffar',emo:'🤍',unit:'tr'},
-    {k:'klagan', lbl:'Klagomål',           emo:'😤', unit:'gg'}
+    {k:'bastu',   lbl:'Bastuvispningar',      emo:'🧖', unit:'rnd'},
+    {k:'kortspel',lbl:'Kortspelsvinster',     emo:'🃏', unit:'v'},
+    {k:'snoboll', lbl:'Snöbollskrig-träffar', emo:'🤍', unit:'tr'},
+    {k:'klagan',  lbl:'Klagomål',             emo:'😤', unit:'gg'}
   ];
   return bacts.map(({k,lbl,emo,unit})=>`
     <div class="bonus-hdr">${emo} ${lbl}</div>
@@ -1232,6 +1243,8 @@ function faktaQuip(pid) {
 
 function tFakta() {
   const flog = S.fakta_log || [];
+  // Använd alltid summan från player-state, INTE flog.length (de kan skilja vid korrigeringar)
+  const totalFakta = PIDS.reduce((s,p)=>s+S.players[p].fakta, 0);
 
   // Guard: not logged in
   if (!isLoggedIn()) {
@@ -1259,7 +1272,7 @@ function tFakta() {
   const canSub = FP ? true : false; // full check happens with oninput
 
   const form = `<div class="mat-form">
-    <h3>💡 Registrera ett faktapåstående</h3>
+    <h3>💡 Registrera ett faktapåstående <span style="font-size:0.75rem;color:var(--muted);font-weight:400">(Totalt accepterade: ${totalFakta} st)</span></h3>
     <div class="player-grid">${ppbtns}</div>
     <input class="dish-inp" id="fakta-inp" type="text" placeholder="Skriv påståendet här... (obligatoriskt)" maxlength="200" oninput="document.getElementById('fakta-submit-btn').disabled=!(${FP?`'${FP}'`:'null'}&&this.value.trim())">
     <button class="btn-submit" id="fakta-submit-btn" disabled onclick="submitFakta()">Registrera fakta</button>
@@ -1484,22 +1497,47 @@ function toast(msg, type) {
 // =====================================================================
 
 function tickerMsgs() {
-  const r=ranked(), tot_ol=PIDS.reduce((s,p)=>s+S.players[p].ol,0);
-  const tot_l=PIDS.reduce((s,p)=>s+S.players[p].langd,0);
+  const r=ranked();
+  const tot_ol  = PIDS.reduce((s,p)=>s+S.players[p].ol,0);
+  const tot_vin = PIDS.reduce((s,p)=>s+S.players[p].vin,0);
+  const tot_l   = PIDS.reduce((s,p)=>s+S.players[p].langd,0);
+  const tot_fak = PIDS.reduce((s,p)=>s+S.players[p].fakta,0);
+  const mange=S.players['mange'], habbe=S.players['habbe'];
+
   const msgs=[
-    '⛷️ Välkommen till Messlingen 2026! Ladda skidorna. Och ölkylen.',
-    '🍺 Viktigt: Öl räknas som sportdryck denna helg. Inga diskussioner.',
-    '❄️ Härjedalen hälsar: det är kallt. Det är meningen.',
-    '🤒 Mange-rapport: tungan oklar, humöret stabilt, ölsuget maxat.',
-    '🤖 Flevy har troligtvis redan frågat Claude om detta tickermeddelande.',
-    '🚴 Andy saknar sin cykel. Djupt. Innerst inne.',
-    '⚽ Habbe kollar Kalmar FF:s tabell. Den är... vad den är.',
-    '🏒 HV71-uppdatering: Habbe är inte nöjd. Aldrig.',
-    '🎿 Tips: Det är lättare att åka nerför backen om man väljer rätt backe.',
+    '🎿 Välkommen till Messlingen 2026! Längdspåret kallar. Vallningen ber om förlåtelse.',
+    '❄️ Härjedalen hälsar: det är kallt, det är halt, och INGEN av er kan valla. Välkommen.',
+    '🎿 Vallningstips #1: Om skidorna åker BAKÅT är det inte spårets fel. Hälsar: Spåret.',
+    '🤒 Manges skidor bakhalt igen. Tredje dagen i rad. Snökornen håller presskonferens.',
+    '🎿 Bakhalt-o-metern 2026: Mange (ledare), Habbe (tvåa). Resten av gruppen: frågande.',
+    '🏅 Inofficiellt VM i bakhalt pågår. Deltagare: Mange, Habbe. Åskådare: Flevy, Andy (skrattandes).',
+    '🤒 Manges vallningsfilosofi: "Det funkar hemma i Skåne." Skåne är plant. Det är Härjedalen inte.',
+    '🎿 Habbe vallningsrapport: tjockt klister i -8°C. "Det kändes rätt." Det var fel.',
+    '❄️ Spårförhållanden: Utmärkta. Förutsatt att man kan valla. Tyst i norra ledet.',
+    '🤒 Mange timme 1: "Lite dålig glid." Mange timme 6: "VARFÖR GÅR JAG BAKÅT I PLAN TERRÄNG?!"',
+    '🎿 Habbe om bakhalt: "I Kalmar blåser det bakifrån alltid. Det är vana." Logiken håller inte.',
+    '🤖 Flevy frågade Claude om optimal vallning. Claude levererade 4-stegsguide. Mange läste steg 1.',
+    '🚴 Andy om vallning: "Cyklar har inte det problemet." Andy är fel sport men rätt slutsats.',
+    '😤 Klagomål inkommet från spåret: "Skidorna fungerar inte." Avsändare: anonym. (Mange.)',
+    '🎿 Klister-katastrof 2026: Manges skidor med mer is under sig än en curlingsten.',
+    '🏒 Habbe kollar HV71-resultatet. Sen frågar han varför skidorna beter sig dåligt. Ingen svarar.',
+    '💡 Accepterat faktapåstående: "Bakhalt bygger karaktär." Habbe nickade. Mange instämde. Ingen googlade.',
+    '🍺 Viktig nyhet: Öl förbättrar INTE vallningsförmågan. Bevis: Mange och Habbe efter lunch.',
+    '🎿 Messlingen-rekord: Manges skidor med längst uppmätt bakhaltssekvens i spårets historia.',
+    '⚽ Habbe: "Kalmar FF hade också vallningsproblem 1995." INGEN bad om den analysen.',
+    '🤒 Manges tunga och hans skidor delar öde: båda fungerar bäst i Skåne. Oklart varför.',
+    '🎿 Tekniktips: Längdskidåkning kräver framåt-rörelse. Mange och Habbe utforskar alternativ.',
+    '🍷 Habbe förklarar att rött vin är "vallningskompensation." Gruppen accepterar. Ingen ifrågasätter.',
+    '🤒 Mange: "Det är skidornas fel." Skidorna: [ej tillgängliga för kommentar vid detta tillfälle.]',
+    '🎿 Fjällhälsning: Messlingen tar emot alla. Även de som åker bakåt. Välkommen, Mange och Habbe.',
   ];
-  if(r[0].s>0) msgs.push('🥇 Leder just nu: '+PM[r[0].id].name+' med '+r[0].s+'p — '+PM[r[r.length-1].id].name+' på '+r[r.length-1].s+'p är sist!');
-  if(tot_ol>0) msgs.push('🍺 Gruppen har druckit '+tot_ol+' öl. Det är '+(tot_ol*0.5).toFixed(1)+' liter. Ingen kommentar.');
-  if(tot_l>0)  msgs.push('⛷️ Gruppen: '+tot_l+' km längd totalt! Trondheim är bara '+Math.round(4600-tot_l)+' km till.');
+
+  if(r[0].s>0) msgs.push('🥇 Leder: '+PM[r[0].id].name+' med '+r[0].s+'p — '+PM[r[r.length-1].id].name+' på '+r[r.length-1].s+'p åker bakåt (vallningsproblem).');
+  if(tot_ol>0)  msgs.push('🍺 Gruppen: '+tot_ol+' öl hittills. '+(tot_ol*0.5).toFixed(1)+' liter. Ingen förbättring i vallningsförmåga noterad.');
+  if(tot_vin>0) msgs.push('🍷 Gruppen: '+tot_vin+' glas vin. Habbe räknar detta som "pre-race nutrition."');
+  if(tot_l>0)   msgs.push('🎿 Gruppen: '+tot_l+' km totalt! Varav uppskattningsvis '+Math.max(0,(mange.langd+habbe.langd)*0.3|0)+' km åkt BAKÅT (Mange+Habbe, bakhalt).');
+  if(tot_fak>0) msgs.push('💡 Gruppen har accepterat '+tot_fak+' fakta ingen kan verifiera. Google är förbjudet. Bra för alla inblandade.');
+  if(mange.klagan>=2) msgs.push('😤 Manges klagomål: '+mange.klagan+' stycken. Snökornen, skidorna, spåret, kylden och "allt" har klagats på.');
   return msgs;
 }
 
@@ -1521,35 +1559,46 @@ setInterval(rotateTicker, 23000);
 
 function topTickerInsults() {
   const r=ranked();
-  const tot_ol=PIDS.reduce((s,p)=>s+S.players[p].ol,0);
+  const tot_ol  = PIDS.reduce((s,p)=>s+S.players[p].ol,0);
+  const tot_vin = PIDS.reduce((s,p)=>s+S.players[p].vin,0);
   const mange=S.players['mange'], flevy=S.players['flevy'], andy=S.players['andy'], habbe=S.players['habbe'];
 
   const msgs=[
-    '🔥 BREAKING: Fyra medelålders män tror fortfarande att de är i 30-årsåldern. Messlingen håller tyst.',
-    '💡 '+PM['flevy'].name+' har frågat Claude '+(Math.floor(Math.random()*47)+12)+' gånger sedan frukost. Claude svarar fortfarande.',
-    '🏒 HV71-special: Habbe kollar telefonens sport-app var 4:e minut. Resultaten förbättras inte av detta.',
-    '⚽ Kalmar FF:s seriefinal: oklart. Habbe verkar påverkad.',
-    '🤒 Mange-lägesrapport: tungan oklar, åsikterna starka, skånska ursäkter redo.',
-    '🚴 Andy såg en cykel i ett fönster i Funäsdalen. Han stannade i 4 minuter. Gruppen gick vidare.',
-    '🤖 Flevy frågade Claude om optimalt skidvax. Claude svarade. Flevy frågade 3 följdfrågor.',
-    '🍺 Öl-filosofi: Om ett öl faller i skogen och ingen registrerar det i appen, räknas det? (Nej.)',
-    '⛷️ Fjälltips: Det är lättare att åka utför än uppför. Gruppen har ännu inte testat uppför frivilligt.',
+    '🔥 BREAKING: Fyra medelålders skidåkare anländer till Messlingen. Vallningsnivån: nationell katastrof.',
+    '🎿 VALLNINGSLARM: Manges skidor uppmätta till -0.8 km/h i plan terräng. MINUS. Noll-punkt-åtta.',
+    '🏅 Bakhalt-VM 2026: Mange (guld), Habbe (silver). Flevy och Andy nekade att delta. Klokt.',
+    '🤒 Manges klister-analys: tjockt klister i -8°C. Han "visste vad han gjorde." Spåret höll inte med.',
+    '🎿 EXKLUSIVT: Manges skidor åker nu officiellt bakåt snabbare än framåt. Fysiker kontaktade.',
+    '⚽ Habbe: "Kalmar FF hade OCKSÅ lite vallningsproblem." INGEN har bett om den analogin.',
+    '🤖 Flevy bad Claude om vallningsguide. Claude levererade 6-stegsplan. Mange läste rubriken.',
+    '🚴 Andy: "Cykeldäck behöver inte vallas." Andy har rätt om cyklar. Andy åker skidor.',
+    '🏒 HV71 och Habbe: båda i underläge, båda skyller på externa faktorer, ingen ändrar vallningstaktik.',
+    '🤒 Manges dagliga rapport: Klagomål #1 = vallning. Klagomål #2-∞ = fortfarande vallning.',
+    '💡 Dagens accepterade fakta: "Bakhalt stärker vaden." Habbe sa det. Ingen kollade. Gruppen nickade.',
+    '🎿 Habbe vallningsfilosofi: "I Småland sparar vi på allt, inklusive vallning." Resultaten syns.',
+    '🍺 Vetenskaplig studie, Messlingen 2026: Öl förbättrar INTE vallningsförmågan. n=2. Mange & Habbe.',
+    '🤒 Mange timme 8: fortfarande bakhalt. Geologer undersöker om Härjedalen lutar åt Skåne-hållet.',
+    '🎿 Spårkarta uppdaterad: Manges bakhaltssekvens markerad i rött. Kartan är nu mest röd.',
+    '⚽ Habbe: '+habbe.langd+' km längd. Kalmar FF har inte vunnit SM-guld på lika många år. Sammanträffande?',
+    '🤖 Flevy har frågat Claude '+(Math.floor(Math.random()*38)+15)+' gånger idag. Claude har inte frågat tillbaka en enda gång.',
+    '🚴 Andy såg en cykel i Funäsdalen. Han stannade i 6 minuter. Gruppen åkte vidare. Ingen saknade Andy.',
+    '🤒 Mange-tunga-rapport, dag 2: Oklar. Skånsk. Engagerad i klagomål om vallning.',
+    '🎿 Messlingen-dom: Tekniken är frivillig. Vallningen är obligatorisk. Mange missade det memot.',
+    '🍷 Habbe förklarar att rött vin "neutraliserar dålig vallning biokemiskt." Claude tillfrågades inte.',
+    '🏒 Habbe: "+'+habbe.ol+' öl, 0 rätt vallningar, 1 HV71-förklaring ingen bad om. En typisk helg."',
+    '🤒 Mange klagomål-statistik: '+mange.klagan+' klagomål. Snön, kylden, spåret, skidorna och "allt" har anklagats.',
+    '🎿 Slutrapport dag 1: Flevy och Andy glider fram. Mange och Habbe glider bakåt. Alla äter bra.',
+    '🔥 MESSLINGEN 2026-sammanfattning: Vallning: underkänt. Öl: godkänt. Klagomål: övergodkänt. Underhållning: 10/10.',
   ];
 
-  if(r[0].s>0) msgs.push('🥇 '+PM[r[0].id].name+' leder just nu med '+r[0].s+' poäng och har redan börjat skriva sitt segertal. I huvudet.');
-  if(tot_ol>5) msgs.push('🍺 STATISTIK: Gruppen har druckit '+tot_ol+' öl. Medicinska rådet rekommenderar vatten. Gruppen ignorerar medicinska rådet.');
-
-  if(mange.klagan>=3) msgs.push('😤 Mange-klagometer: '+mange.klagan+' klagomål registrerade. Tungan är involverad i minst '+Math.ceil(mange.klagan*0.7)+'.');
-  if(mange.ol>=2) msgs.push('🍺 Mange har druckit '+mange.ol+' öl. Skånska accenten har nått kritisk massa.');
-
-  if(flevy.fakta>=2) msgs.push('💡 Flevy har bidragit med '+flevy.fakta+' "fakta" som ingen kan verifiera. Claude är källan. Fallet avslutat.');
-  if(flevy.ol>=2) msgs.push('🤖 Flevy frågade Claude om alkoholmetabolism efter öl nummer '+flevy.ol+'. Claude svarade utförligt.');
-
-  if(andy.langd>=5) msgs.push('🚴 Andy har åkt '+andy.langd+' km längd. "Det är exakt som att cykla, fast sämre," rapporterar han.');
-  if(andy.utfor>=3) msgs.push('🎿 Andy: '+andy.utfor+' utförsåkningar utan cykel. Det kallas framsteg.');
-
-  if(habbe.ol>=3) msgs.push('🏒 Habbe har druckit '+habbe.ol+' öl och förklarat HV71:s taktik för gruppen. Gruppen lyssnade på ett öl.');
-  if(habbe.utfor>=3) msgs.push('⚽ Habbe: '+habbe.utfor+' utförsåkningar. Lika många som Kalmar FF:s mål senaste månaden. Troligtvis.');
+  // Dynamiska
+  if(r[0].s>0) msgs.push('🥇 '+PM[r[0].id].name+' leder med '+r[0].s+'p och har redan börjat med segertalet. '+PM[r[r.length-1].id].name+' på sista plats funderar på att skylla på vallningen.');
+  if(tot_ol+tot_vin>8) msgs.push('🍺🍷 Gruppen har konsumerat '+(tot_ol+tot_vin)+' drycker. Medicinska rådet rekommenderar vatten. Gruppen rekommenderar mer öl.');
+  if(mange.klagan>=4) msgs.push('😤 KLAGOMÅLSREKORD: Mange har klagat '+mange.klagan+' gånger. Nye rekordet noterat. Gamle rekordet var också Manges.');
+  if(mange.langd>0 && mange.ol>=3) msgs.push('🤒 Mange-ekvation: '+mange.langd+'km längd + '+mange.ol+' öl = '+mange.klagan+' klagomål. Matematiken stämmer.');
+  if(flevy.fakta>=2) msgs.push('💡 Flevy har bidragit med '+flevy.fakta+' "fakta" ingen kan verifiera. Claude är källan. Claude är alltid källan.');
+  if(habbe.utfor>=3) msgs.push('⚽ Habbe: '+habbe.utfor+' utförsåkningar. Lika många som Kalmar FFs mål i cupspelet. Habbe nekar att bekräfta.');
+  if(andy.langd>=10) msgs.push('🚴 Andy har åkt '+andy.langd+' km. "Det är precis som att cykla, fast man fryser och går bakåt ibland." Välkommen till skidåkning, Andy.');
 
   return msgs;
 }
