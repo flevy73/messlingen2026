@@ -763,7 +763,7 @@ const PIDS = ['mange','flevy','andy','habbe'];
 // =====================================================================
 
 function blankPlayer() {
-  return { langd:0, ol:0, utfor:0, mat:0, bastu:0, kortspel:0, snoboll:0, klagan:0, fakta:0, vin:0 };
+  return { langd:0, ol:0, utfor:0, mat:0, bastu:0, kortspel:0, snoboll:0, klagan:0, fakta:0, vin:0, krasch:0 };
 }
 function blankState() {
   return { players:{ mange:blankPlayer(), flevy:blankPlayer(), andy:blankPlayer(), habbe:blankPlayer() },
@@ -860,7 +860,7 @@ function save() {
 // =====================================================================
 
 function score(p) {
-  return p.langd*2 + p.ol*1 + p.utfor*3 + p.mat*4 + p.bastu*1 + p.kortspel*2 + p.snoboll*1 + p.fakta*3 + p.vin*1;
+  return p.langd*2 + p.ol*1 + p.utfor*3 + p.mat*4 + p.bastu*1 + p.kortspel*2 + p.snoboll*1 + p.fakta*3 + p.vin*1 + p.krasch*2;
 }
 
 function ranked() {
@@ -929,25 +929,29 @@ const LQ = {
           utfor:['Mange rusar utför!','"Backen e inte lika flat som hemma!"','Skidorna sjunger!'],
           mat:  ['"I Skåne gör vi det annorlunda."','Kulinarisk Skåning!','Mange lagar mat!'],
           klagan:['Mange klagar igen...','En ny dag, ett nytt klagomål.','Tungan? Knäna? Ryggen?'],
-          fakta:['Mange hävdar. Gruppen nickar.','Obevisbart men övertygande!','Skånsk sanning!'] },
+          fakta:['Mange hävdar. Gruppen nickar.','Obevisbart men övertygande!','Skånsk sanning!'],
+          krasch:['"I Skåne hade det inte hänt."','Tungan klarade sig. Skidorna inte.','Bakhalt + krasch = komplett Mange-paket!'] },
   flevy:{ langd:['Claude-optimerad teknik!','AI förutspådde detta!','Paddelmuskler fungerar!'],
           ol:   ['Claude ser och dömer.','Temporärt Claude-uppehåll!','"Jag frågade Claude..."'],
           utfor:['Padel-instinkterna sparkar in!','"Claude sa att det var säkert."','Flevy rusar utför!'],
           mat:  ['"Claude gav receptet."','AI-inspirerad matlagning!','Flevy lagar mat!'],
           kortspel:['Flevy vinner! Claude förutspådde det.','Strategisk seger!'],
-          fakta:['Claude som källa. Gruppen accepterar.','AI-fakta passerar!','Obevisbart men korrekt?'] },
+          fakta:['Claude som källa. Gruppen accepterar.','AI-fakta passerar!','Obevisbart men korrekt?'],
+          krasch:['Flevy frågade Claude om krasch-tekniken EFTER kraschen.','Claude förutspådde inte detta. Eller kanske det.','"Suboptimalt utfall" — Flevy, via Claude.'] },
   andy: { langd:['"Det är typ som att cykla!"','Andy rullar på!','Cykelinstinkterna hjälper!'],
           ol:   ['Kalorier kalkyleras...','Andy kopplar av!','"Bara en cykelkrog-öl."'],
           utfor:['"Vart är pedalerna?!"','Andy conquers!','Utan cykel men med stil!'],
           mat:  ['"Carb-loading, men för skidor."','Andy lagar mat!','Välnärd cyklist!'],
           kortspel:['Andy vinner med cykelstrategi!','Datastyrd seger!'],
-          fakta:['Andy hävdar. Tekniskt möjligt.','Cykelfysik appliceras på skidor!','Obevisbart men coolt.'] },
+          fakta:['Andy hävdar. Tekniskt möjligt.','Cykelfysik appliceras på skidor!','Obevisbart men coolt.'],
+          krasch:['"På cykeln hade det inte hänt."','Andy analyserar kraschen aerodynamiskt.','Krasch noterad. Cykeln saknades.'] },
   habbe:{ langd:['HV71-kondis testas!','Kalmar-andan driver!','Habbe kämpar!'],
           ol:   ['Kalmar FF-sorg medicineras.','HV71-minnen dränks.','"Skål för Kalmar!"'],
           utfor:['Habbe rusar utför!','Som en Kalmar-forward!','Habbe i full fart!'],
           mat:  ['Småländskt recept (billigast)!','"I Kalmar äter vi annorlunda."','Habbe lagar mat!'],
           kortspel:['Habbe vinner! Kalmar FF-lycka!','HV71-strategi funkar!'],
-          fakta:['Habbe vet exakt varför. Ingen kollar.','Kalmar-statistik: obevisbar.','Gruppen nickar.'] }
+          fakta:['Habbe vet exakt varför. Ingen kollar.','Kalmar-statistik: obevisbar.','Gruppen nickar.'],
+          krasch:['Som Kalmar FF:s försvar — kollapsade utan förvarning.','HV71 tackar för underhållningen.','Habbe kraschar med Småländsk sparsamhet. Allt gick sönder.'] }
 };
 
 function lq(pid, act) {
@@ -981,7 +985,13 @@ const ACHS = [
   { id:'cykel',         emo:'🚴❌', name:'Cykel Saknas',        desc:'Andy: åker utför!',
     check:(s,p)=>p==='andy'&&s.players[p].utfor>=1 },
   { id:'klagan',        emo:'😤🏆', name:'Klagomästare',        desc:'10+ klagomål registrerade',
-    check:(s,p)=>s.players[p].klagan>=10 }
+    check:(s,p)=>s.players[p].klagan>=10 },
+  { id:'krasch1',       emo:'💥',   name:'Första kraschen',     desc:'Välkommen till Messlingen!',
+    check:(s,p)=>s.players[p].krasch>=1 },
+  { id:'krasch3',       emo:'💥💥💥', name:'Kraschkungen',       desc:'3+ krascher. Imponerande fel-val.',
+    check:(s,p)=>s.players[p].krasch>=3 },
+  { id:'krasch_mange',  emo:'🤒💥', name:'Skånsk Kraschare',    desc:'Mange: krasch + bakhalt samma dag',
+    check:(s,p)=>p==='mange'&&s.players[p].krasch>=1&&s.players[p].klagan>=1 }
 ];
 
 function checkAchs() {
@@ -1008,7 +1018,7 @@ function upd(pid, act, delta) {
 
   if(delta!==0) {
     const enames={langd:'⛷️ längd',ol:'🍺 öl',utfor:'🎿 utförsåk',mat:'🍳 matpoäng',
-                  bastu:'🧖 bastu',kortspel:'🃏 kortspel',snoboll:'🤍 snöboll',klagan:'😤 klagomål',fakta:'💡 fakta',vin:'🍷 vin'};
+                  bastu:'🧖 bastu',kortspel:'🃏 kortspel',snoboll:'🤍 snöboll',klagan:'😤 klagomål',fakta:'💡 fakta',vin:'🍷 vin',krasch:'💥 krasch'};
     const txt = delta>0
       ? `${PM[pid].name} loggade +${Math.abs(delta)} ${enames[act]}`
       : `${PM[pid].name} korrigerade −${Math.abs(delta)} ${enames[act]}`;
@@ -1200,6 +1210,7 @@ function submitDish() {
 
 function tBonus() {
   const bacts=[
+    {k:'krasch',  lbl:'Skidkrascher',         emo:'💥', unit:'st'},
     {k:'bastu',   lbl:'Bastuvispningar',      emo:'🧖', unit:'rnd'},
     {k:'kortspel',lbl:'Kortspelsvinster',     emo:'🃏', unit:'v'},
     {k:'snoboll', lbl:'Snöbollskrig-träffar', emo:'🤍', unit:'tr'},
@@ -1337,7 +1348,7 @@ function renderLB() {
         <div class="lb-emo">${m.emo}</div>
         <div class="lb-info">
           <div class="lb-name">${m.name}</div>
-          <div class="lb-detail">⛷️${p.langd}km · 🍺${p.ol} · 🍷${p.vin} · 🎿${p.utfor} · 🍳${p.mat}p · 🧖${p.bastu} · 🃏${p.kortspel} · 🤍${p.snoboll} · 💡${p.fakta}</div>
+          <div class="lb-detail">⛷️${p.langd}km · 🍺${p.ol} · 🍷${p.vin} · 🎿${p.utfor} · 💥${p.krasch} · 🍳${p.mat}p · 🧖${p.bastu} · 🃏${p.kortspel} · 🤍${p.snoboll} · 💡${p.fakta}</div>
         </div>
         <div style="text-align:right">
           <div class="lb-pts">${x.s}</div>
@@ -1345,7 +1356,7 @@ function renderLB() {
         </div>
       </div>`;
     }).join('') +
-    `<div class="note">Poängformel: Längd×2 + Öl×1 + Vin×1 + Utför×3 + Mat×4 + Bastu×1 + Kortspel×2 + Snöboll×1 + Fakta×3</div>`;
+    `<div class="note">Poängformel: Längd×2 + Öl×1 + Vin×1 + Utför×3 + Krasch×2 + Mat×4 + Bastu×1 + Kortspel×2 + Snöboll×1 + Fakta×3</div>`;
 }
 
 // =====================================================================
@@ -1538,6 +1549,10 @@ function tickerMsgs() {
   if(tot_l>0)   msgs.push('🎿 Gruppen: '+tot_l+' km totalt! Varav uppskattningsvis '+Math.max(0,(mange.langd+habbe.langd)*0.3|0)+' km åkt BAKÅT (Mange+Habbe, bakhalt).');
   if(tot_fak>0) msgs.push('💡 Gruppen har accepterat '+tot_fak+' fakta ingen kan verifiera. Google är förbjudet. Bra för alla inblandade.');
   if(mange.klagan>=2) msgs.push('😤 Manges klagomål: '+mange.klagan+' stycken. Snökornen, skidorna, spåret, kylden och "allt" har klagats på.');
+  const tot_krasch = PIDS.reduce((s,p)=>s+S.players[p].krasch,0);
+  if(tot_krasch>0) msgs.push('💥 Kraschstatistik: gruppen har kraschats '+tot_krasch+' gånger. Försäkringsbolaget är informerat.');
+  if(mange.krasch>=1) msgs.push('💥 Mange har kraschats '+mange.krasch+' gånger. "Det var vallningens fel." — Mange. Det var inte vallningens fel.');
+  if(habbe.krasch>=1) msgs.push('💥 Habbe krasch-rapport: '+habbe.krasch+' krascher. "Som Kalmar FF:s säsong — oväntat men oundvikligt."');
   return msgs;
 }
 
@@ -1599,6 +1614,10 @@ function topTickerInsults() {
   if(flevy.fakta>=2) msgs.push('💡 Flevy har bidragit med '+flevy.fakta+' "fakta" ingen kan verifiera. Claude är källan. Claude är alltid källan.');
   if(habbe.utfor>=3) msgs.push('⚽ Habbe: '+habbe.utfor+' utförsåkningar. Lika många som Kalmar FFs mål i cupspelet. Habbe nekar att bekräfta.');
   if(andy.langd>=10) msgs.push('🚴 Andy har åkt '+andy.langd+' km. "Det är precis som att cykla, fast man fryser och går bakåt ibland." Välkommen till skidåkning, Andy.');
+  if(mange.krasch>=1) msgs.push('💥 KRASCHRAPPORT: Mange har kraschats '+mange.krasch+' gånger. Skånsk kommentar: "Det va inte jag, dä va snön."');
+  if(habbe.krasch>=1) msgs.push('💥 Habbes krasch #'+habbe.krasch+': analyseras nu av Habbe med samma grundlighet som Kalmar FF:s taktikmisstag 2019.');
+  if(flevy.krasch>=1) msgs.push('💥 Flevy kraschade. Frågade Claude hur man undviker det retroaktivt. Claude sa "undvik nästa gång." Flevy frågade 3 följdfrågor.');
+  if(S.players['andy'].krasch>=1) msgs.push('💥 Andy kraschade. "Cyklar ramlar inte." Andy är fortfarande inte övertygad om att skidor är en bra idé.');
 
   return msgs;
 }
