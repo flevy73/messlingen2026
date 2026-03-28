@@ -1679,12 +1679,12 @@ function tickerMsgs() {
   const tot_vin = PIDS.reduce((s,p)=>s+S.players[p].vin,0);
   const tot_l   = PIDS.reduce((s,p)=>s+S.players[p].langd,0);
   const tot_fak = PIDS.reduce((s,p)=>s+S.players[p].fakta,0);
-  const mange=S.players['mange'], habbe=S.players['habbe'], flevy=S.players['flevy'], andy=S.players['andy'];
+  const mange=S.players['mange'], habbe=S.players['habbe'];
 
   const msgs=[
-    '🎿 Välkommen till Messlingen 2026! Fyra medelålders män. Ett fjäll. Oändliga möjligheter att misslyckas.',
-    '❄️ Härjedalen hälsar: det är kallt, backarna är branta, och INGEN av er är i form. God fortsättning.',
-    '🤒 Mange-tungrapport, dag 1: Synlig. Hörbar. Oklar. Fortfarande i kläm sedan 1976. Prognos: oförändrat.',
+    '🎿 Välkommen till Messlingen 2026! Längdspåret kallar. Vallningen ber om förlåtelse.',
+    '❄️ Härjedalen hälsar: det är kallt, det är halt, och INGEN av er kan valla. Välkommen.',
+    '🎿 Vallningstips #1: Om skidorna åker BAKÅT är det inte spårets fel. Hälsar: Spåret.',
     '🤒 Manges skidor bakhalt igen. Tredje dagen i rad. Snökornen håller presskonferens.',
     '🎿 Bakhalt-o-metern 2026: Mange (ledare), Habbe (tvåa). Resten av gruppen: frågande.',
     '🏅 Inofficiellt VM i bakhalt pågår. Deltagare: Mange, Habbe. Åskådare: Flevy, Andy (skrattandes).',
@@ -1734,16 +1734,16 @@ function tickerMsgs() {
     '❄️ Väderprognos: -8°C. Perfekt för skidåkning. Inte perfekt för Manges klister. Aldrig perfekt för Manges klister.'  
   ];
 
-  if(r[0].s>0) msgs.push('🥇 Ledare: '+PM[r[0].id].name+' ('+r[0].s+'p) njuter av försprånget. Sist: '+PM[r[r.length-1].id].name+' ('+r[r.length-1].s+'p) funderar på karriärbyte.');
-  if(tot_ol>0)  msgs.push('🍺 Alkoholstatistik: '+tot_ol+' öl konsumerade. '+(tot_ol*0.5).toFixed(1)+' liter. Prestationsförbättring: 0%. Humörförbättring: 200%.');
-  if(tot_vin>0) msgs.push('🍷 Vin-intake: '+tot_vin+' glas. Habbe förklarar detta som "IdrottsMedicinSk vätska". Läkare håller inte med.');
-  if(tot_l>0)   msgs.push('🎿 Distans: '+tot_l+' km totalt! Imponerande? Nej. Mange åkte '+mange.langd+' km varav '+Math.round(mange.langd*0.3)+'km i PANIKHASTIGHET.');
-  if(tot_fak>0) msgs.push('💡 Accepterade \'fakta\' från Flevy/Claude: '+tot_fak+' st. Verifierade via Google: 0 st. Problemgrad: låg (alla nöjda).');
-  if(mange.klagan>=2) msgs.push('😤 Mange klagomål-log: '+mange.klagan+' registrerade. Kategorier: vädret, backen, kylden, värmen, allt. Lösningar: inga.');
+  if(r[0].s>0) msgs.push('🥇 Leder: '+PM[r[0].id].name+' med '+r[0].s+'p — '+PM[r[r.length-1].id].name+' på '+r[r.length-1].s+'p åker bakåt (vallningsproblem).');
+  if(tot_ol>0)  msgs.push('🍺 Gruppen: '+tot_ol+' öl hittills. '+(tot_ol*0.5).toFixed(1)+' liter. Ingen förbättring i vallningsförmåga noterad.');
+  if(tot_vin>0) msgs.push('🍷 Gruppen: '+tot_vin+' glas vin. Habbe räknar detta som "pre-race nutrition."');
+  if(tot_l>0)   msgs.push('🎿 Gruppen: '+tot_l+' km totalt! Varav uppskattningsvis '+Math.max(0,(mange.langd+habbe.langd)*0.3|0)+' km åkt BAKÅT (Mange+Habbe, bakhalt).');
+  if(tot_fak>0) msgs.push('💡 Gruppen har accepterat '+tot_fak+' fakta ingen kan verifiera. Google är förbjudet. Bra för alla inblandade.');
+  if(mange.klagan>=2) msgs.push('😤 Manges klagomål: '+mange.klagan+' stycken. Snökornen, skidorna, spåret, kylden och "allt" har klagats på.');
   const tot_krasch = PIDS.reduce((s,p)=>s+S.players[p].krasch,0);
-  if(tot_krasch>0) msgs.push('💥 Kraschtotal: '+tot_krasch+' st. Försäkring: informerad. Stolthet: skadad. Kroppar: överraskande hela.');
-  if(mange.krasch>=1) msgs.push('💥 Mange-krascher: '+mange.krasch+' dokumenterade. Anledning enligt Mange: "omständigheterna". Vittnen: "han tittade åt fel håll".');
-  if(habbe.krasch>=1) msgs.push('💥 Habbe krasch #'+habbe.krasch+': Analyseras med samma detalj som Kalmar FFs taktikfel 2004. Slutsats: andras fel.');
+  if(tot_krasch>0) msgs.push('💥 Kraschstatistik: gruppen har kraschats '+tot_krasch+' gånger. Försäkringsbolaget är informerat.');
+  if(mange.krasch>=1) msgs.push('💥 Mange har kraschats '+mange.krasch+' gånger. "Det var vallningens fel." — Mange. Det var inte vallningens fel.');
+  if(habbe.krasch>=1) msgs.push('💥 Habbe krasch-rapport: '+habbe.krasch+' krascher. "Som Kalmar FF:s säsong — oväntat men oundvikligt."');
   const tot_bastu = PIDS.reduce((s,p)=>s+S.players[p].bastu,0);
   if(tot_bastu>=3) msgs.push('🧖 Basturapport: '+tot_bastu+' bastusessioner. Habbe förde in öl. Andy frågade om man "kan träna i bastun". Flevy frågade Claude.');
   const tot_kortspel = PIDS.reduce((s,p)=>s+S.players[p].kortspel,0);
@@ -1754,8 +1754,8 @@ function tickerMsgs() {
   if(tot_stad>=1) msgs.push('🧹 Städning: '+tot_stad+' städpass. Flevy städade metodiskt. Andy snabbt. Habbe "som i Småland". Mange kollade på.');
   const tot_hjalp = PIDS.reduce((s,p)=>s+S.players[p].hjalpreda,0);
   if(tot_hjalp>=3) msgs.push('🤝 Hjälpinsatser: '+tot_hjalp+' gånger. Andy hjälpte mest. Flevy frågade Claude om "optimal hjälpmotivation". Mange mottog mest hjälp.');
-  if(mange.ol>=5 && mange.langd<3) msgs.push('🍺 Mange-statistik: '+mange.ol+' öl, '+mange.langd+' km. Prioriteringarna är tydliga. Konditionsförbättring: 0.');
-  if(flevy.fakta>=5) msgs.push('💡 Flevy Claude-beroende: '+flevy.fakta+' "fakta" från AI. Grupp accepterar alla. Verifieringsgrad: 0%.');
+  if(mange.ol>=5 && mange.langd<3) msgs.push('🍺 Mange-statistik: '+mange.ol+' öl, '+mange.langd+' km. Prioriteringarna är tydliga. Vallningen förbättrades inte.');
+  if(flevy.fakta>=5) msgs.push('💡 Flevy Claude-beroende: '+flevy.fakta+' "fakta" från AI. Gruppe accepterar alla. Verifieringsgrad: 0%.');
   if(habbe.vin>=4) msgs.push('🍷 Habbe vin-konsumtion: '+habbe.vin+' glas. "Det är för hjärtats hälsa", förklarar Habbe. Hjärtat instämmer.');
   if(andy.utfor>=5 && andy.langd<5) msgs.push('🚴 Andy utförsprofil: '+andy.utfor+' utförsåkningar, '+andy.langd+' km längd. "Utför är som nedförsbacke på cykel!" —Andy');
   return msgs;
@@ -1838,17 +1838,17 @@ function topTickerInsults() {
   ];
 
   // Dynamiska
-  if(r[0].s>0) msgs.push('🥇 LEDARE: '+PM[r[0].id].name+' ('+r[0].s+'p) njuter av försprånget. SIST: '+PM[r[r.length-1].id].name+' ('+r[r.length-1].s+'p) funderar på karriärbyte.');
-  if(tot_ol+tot_vin>8) msgs.push('🍺🍷 ALKOHOL-ALARM: '+(tot_ol+tot_vin)+' drycker konsumerade. WHO: "Nej.". Grupp: "Mer tack." Hälsa: diskutabel.');
-  if(mange.klagan>=4) msgs.push('😤 MANGE KLAGOMÅL-MÄTARE: '+mange.klagan+' registrerade. Nytt rekord! Förra rekordet: också Mange (2025). Congratulations.');
-  if(mange.langd>0 && mange.ol>=3) msgs.push('🤒 MANGE LIVSVAL: '+mange.langd+'km skidåkning vs '+mange.ol+' öl. Ratio: '+Math.round(mange.ol/Math.max(1,mange.langd)*10)/10+':1. Prioriteringar: glasklara.');
-  if(flevy.fakta>=2) msgs.push('💡 FLEVY AI-FACTS: '+flevy.fakta+' påståenden från Claude. Verifierade: 0. Accepterade av grupp: alla. Källkritik: obefintlig.');
-  if(habbe.utfor>=3) msgs.push('⚽ HABBE SKI-STATS: '+habbe.utfor+' utförsåkningar = samma antal som Kalmar FFs mål senaste matchen. Coincidence? Habbe nekar.');
-  if(andy.langd>=10) msgs.push('🚴 ANDY DISTANS: '+andy.langd+' km åkt. Kommentar: "Som cykel fast kallare och svårare." Regret level: stigande.');
-  if(mange.krasch>=1) msgs.push('💥 MANGE CRASH-LOG: '+mange.krasch+' olyckor. Manges förklaring: "Omständigheter". Vittnen: "Han tittade bort".');
-  if(habbe.krasch>=1) msgs.push('💥 HABBE-KRASCH #'+habbe.krasch+': Analyseras nu med samma detalj som Kalmar FFs taktikfel 2004. Slutsats: "inte mitt fel".');
-  if(flevy.krasch>=1) msgs.push('💥 FLEVY-INCIDENT: Kraschade. Frågade Claude om "prevention retroaktivt". Claude: "...vadå?". Flevy: frågade uppföljare.');
-  if(S.players['andy'].krasch>=1) msgs.push('💥 ANDY-FALL: "På cykel händer inte detta". Grupp: "Du är inte på cykel Andy". Andy: "...borde kanske vara det".');
+  if(r[0].s>0) msgs.push('🥇 '+PM[r[0].id].name+' leder med '+r[0].s+'p och har redan börjat med segertalet. '+PM[r[r.length-1].id].name+' på sista plats funderar på att skylla på vallningen.');
+  if(tot_ol+tot_vin>8) msgs.push('🍺🍷 Gruppen har konsumerat '+(tot_ol+tot_vin)+' drycker. Medicinska rådet rekommenderar vatten. Gruppen rekommenderar mer öl.');
+  if(mange.klagan>=4) msgs.push('😤 KLAGOMÅLSREKORD: Mange har klagat '+mange.klagan+' gånger. Nye rekordet noterat. Gamle rekordet var också Manges.');
+  if(mange.langd>0 && mange.ol>=3) msgs.push('🤒 Mange-ekvation: '+mange.langd+'km längd + '+mange.ol+' öl = '+mange.klagan+' klagomål. Matematiken stämmer.');
+  if(flevy.fakta>=2) msgs.push('💡 Flevy har bidragit med '+flevy.fakta+' "fakta" ingen kan verifiera. Claude är källan. Claude är alltid källan.');
+  if(habbe.utfor>=3) msgs.push('⚽ Habbe: '+habbe.utfor+' utförsåkningar. Lika många som Kalmar FFs mål i cupspelet. Habbe nekar att bekräfta.');
+  if(andy.langd>=10) msgs.push('🚴 Andy har åkt '+andy.langd+' km. "Det är precis som att cykla, fast man fryser och går bakåt ibland." Välkommen till skidåkning, Andy.');
+  if(mange.krasch>=1) msgs.push('💥 KRASCHRAPPORT: Mange har kraschats '+mange.krasch+' gånger. Skånsk kommentar: "Det va inte jag, dä va snön."');
+  if(habbe.krasch>=1) msgs.push('💥 Habbes krasch #'+habbe.krasch+': analyseras nu av Habbe med samma grundlighet som Kalmar FF:s taktikmisstag 2019.');
+  if(flevy.krasch>=1) msgs.push('💥 Flevy kraschade. Frågade Claude hur man undviker det retroaktivt. Claude sa "undvik nästa gång." Flevy frågade 3 följdfrågor.');
+  if(S.players['andy'].krasch>=1) msgs.push('💥 Andy kraschade. "Cyklar ramlar inte." Andy är fortfarande inte övertygad om att skidor är en bra idé.');
   if(habbe.bastu>=3) msgs.push('🧖 BASTU-ADDICT: Habbe har bastuat '+habbe.bastu+' gånger. "Som i Småland." Skillnad från Småland: öl i bastun här.');
   if(flevy.bastu>=2 && flevy.fakta>=3) msgs.push('🤖 Flevy i bastun: frågade Claude om optimal bastutemperatur. Claude svarade. Flevy justerade inte temperaturen.');
   if(andy.bastu>=1) msgs.push('🧖 Andy i bastun: "Kan man träna här?" Svar: nej. Andy: "Borde man kunna." Logik: cyklistlogik.');
